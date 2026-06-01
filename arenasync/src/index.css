@@ -1,0 +1,14 @@
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+/* Tell Tailwind to inject its styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Apply the font to everything */
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: #F9FAFB;
+  margin: 0;
+}
