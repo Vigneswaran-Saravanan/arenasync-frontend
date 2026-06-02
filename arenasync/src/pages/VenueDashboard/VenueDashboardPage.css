@@ -1,0 +1,319 @@
+.venue-dashboard-page {
+  min-height: 100vh;
+  background-color: var(--page-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.venue-dashboard-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  width: 100%;
+  flex: 1;
+}
+
+.venue-dashboard-heading {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 6px 0;
+}
+
+.venue-dashboard-subheading {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0 0 28px 0;
+}
+
+/* Venue info card */
+.venue-info-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.venue-photo-placeholder {
+  width: 120px;
+  height: 85px;
+  background: #F3F4F6;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  flex-shrink: 0;
+}
+
+.venue-info-main {
+  flex: 1;
+}
+
+.venue-info-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 4px 0;
+}
+
+.venue-info-address {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 10px 0;
+}
+
+.venue-info-meta {
+  font-size: 13px;
+  color: var(--body);
+  margin: 0 0 10px 0;
+}
+
+.venue-info-meta strong {
+  color: var(--dark);
+}
+
+.venue-facilities {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.facility-tag {
+  background: #F3F4F6;
+  color: var(--body);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.btn-edit-venue {
+  border: 1px solid var(--green);
+  color: var(--green);
+  background: white;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.btn-edit-venue:hover {
+  background: var(--green-light);
+}
+
+/* Edit form */
+.venue-edit-card {
+  background: var(--white);
+  border: 1px solid #86EFAC;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  background: var(--green-light);
+}
+
+.venue-edit-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin: 0 0 20px 0;
+}
+
+.edit-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.edit-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.edit-form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--body);
+}
+
+.edit-form-group input {
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--body);
+  outline: none;
+  background: white;
+  transition: border-color 0.15s;
+}
+
+.edit-form-group input:focus {
+  border-color: var(--green);
+}
+
+/* Facilities checkboxes */
+.facilities-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--body);
+  margin-bottom: 10px;
+}
+
+.facilities-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.facility-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--body);
+}
+
+.facility-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--green);
+  cursor: pointer;
+}
+
+.edit-form-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-save-venue {
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-save-venue:hover {
+  background: var(--green-dark);
+}
+
+.btn-cancel-edit {
+  background: white;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Save success banner */
+.save-success-banner {
+  background: var(--green-light);
+  border: 1px solid #86EFAC;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--green-dark);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Bookings table */
+.bookings-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.bookings-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.bookings-card-header h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0;
+}
+
+.bookings-card-header span {
+  font-size: 13px;
+  color: var(--placeholder);
+}
+
+.bookings-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bookings-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--page-bg);
+}
+
+.bookings-table td {
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--body);
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.bookings-table tr:last-child td {
+  border-bottom: none;
+}
+
+.bookings-table tr:nth-child(even) td {
+  background: var(--page-bg);
+}
+
+.booking-match-name {
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.booking-players-badge {
+  background: var(--green-light);
+  color: var(--green);
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+/* Empty bookings */
+.no-bookings {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--placeholder);
+  font-size: 14px;
+}

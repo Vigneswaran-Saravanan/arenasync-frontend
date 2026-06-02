@@ -1,0 +1,294 @@
+/* ── Navbar container ── */
+.navbar {
+  background-color: var(--white);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Admin navbar has dark background */
+.navbar.navbar-admin {
+  background-color: var(--dark);
+  border-bottom: 1px solid #1F2937;
+}
+
+/* Inner row */
+.navbar-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.navbar-logo-text {
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--dark);
+}
+
+.navbar-admin .navbar-logo-text {
+  color: var(--white);
+}
+
+.navbar-logo-green {
+  color: var(--green);
+}
+
+/* Nav links group */
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+/* Each nav link button */
+.nav-link-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.nav-link-btn:hover {
+  color: var(--dark);
+}
+
+/* Active link — green underline */
+.nav-link-btn.active {
+  color: var(--green);
+  font-weight: 600;
+  border-bottom: 2px solid var(--green);
+}
+
+/* Admin dark navbar links */
+.navbar-admin .nav-link-btn {
+  color: #9CA3AF;
+}
+
+.navbar-admin .nav-link-btn:hover {
+  color: var(--white);
+}
+
+.navbar-admin .nav-link-btn.active {
+  color: var(--green);
+  border-bottom: 2px solid var(--green);
+}
+
+/* Right side of navbar */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Bell wrapper */
+.navbar-bell {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* Red badge on bell */
+.navbar-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #EF4444;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Role switcher button */
+.role-switcher-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 10px;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Role badge pill */
+.role-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.role-badge-player     { background: #EFF6FF; color: #1D4ED8; }
+.role-badge-organizer  { background: #F0FDF4; color: #15803D; }
+.role-badge-venuehost  { background: #F5F3FF; color: #7C3AED; }
+.role-badge-admin      { background: #FEF2F2; color: #B91C1C; }
+
+/* Role dropdown menu */
+.role-dropdown {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  z-index: 200;
+  min-width: 160px;
+  overflow: hidden;
+}
+
+.role-dropdown-label {
+  padding: 8px 14px;
+  border-bottom: 1px solid #F3F4F6;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--placeholder);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Each role option button */
+.role-option-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  border: none;
+  background: white;
+  color: var(--body);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.role-option-btn:hover {
+  background: var(--page-bg);
+}
+
+.role-option-btn.selected {
+  background: var(--green-light);
+  color: var(--green);
+  font-weight: 700;
+}
+
+/* Avatar circle */
+.navbar-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--green);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* Notification panel */
+.notif-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+}
+
+.notif-panel {
+  position: fixed;
+  top: 70px;
+  right: 24px;
+  width: 300px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 200;
+}
+
+.notif-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notif-header span:first-child {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--dark);
+}
+
+.notif-mark-read {
+  font-size: 12px;
+  color: var(--green);
+  font-weight: 600;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.notif-list {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.notif-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #F3F4F6;
+  border-left: 3px solid transparent;
+}
+
+.notif-item.unread {
+  background: var(--green-light);
+  border-left: 3px solid var(--green);
+}
+
+.notif-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 2px;
+}
+
+.notif-item-message {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.notif-item-time {
+  font-size: 11px;
+  color: var(--placeholder);
+}

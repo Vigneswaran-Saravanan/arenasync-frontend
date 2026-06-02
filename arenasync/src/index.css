@@ -1,14 +1,50 @@
-/* Import Google Font */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* Tell Tailwind to inject its styles */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* CSS Variables — your project colors in one place */
+:root {
+  --green:        #16A34A;
+  --green-dark:   #15803D;
+  --green-light:  #F0FDF4;
+  --dark:         #111827;
+  --body:         #374151;
+  --muted:        #6B7280;
+  --placeholder:  #9CA3AF;
+  --border-light: #D1D5DB;
+  --border:       #E5E7EB;
+  --white:        #FFFFFF;
+  --page-bg:      #F9FAFB;
+}
 
-/* Apply the font to everything */
-body {
-  font-family: 'DM Sans', sans-serif;
-  background-color: #F9FAFB;
+/* Reset — removes browser default spacing */
+* {
+  box-sizing: border-box;
   margin: 0;
+  padding: 0;
+}
+
+/* Base body styles */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--page-bg);
+  color: var(--body);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Remove underline from all links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Remove default button styles */
+button {
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+}
+
+/* Remove default input styles */
+input, textarea, select {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
 }
