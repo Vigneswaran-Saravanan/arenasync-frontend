@@ -7,9 +7,9 @@ import IconLocation from '../../components/icons/IconLocation'
 import IconCalendar from '../../components/icons/IconCalendar'
 import IconClock from '../../components/icons/IconClock'
 import IconUser from '../../components/icons/IconUser'
-import matches from '../../data/matches'
 
-function HomePage({ role, setRole }) {
+
+function HomePage({ role, setRole, matches }) {
 
   const navigate = useNavigate()
 
@@ -21,7 +21,7 @@ function HomePage({ role, setRole }) {
   const [selectedPin, setSelectedPin] = useState(null)
 
   // Filter matches based on all three filters
-  const filtered = matches.filter(function(match) {
+  const filtered = matches.filter(function (match) {
 
     // Skill filter
     if (skillFilter !== 'All' && match.skillLevel !== skillFilter) {
@@ -33,23 +33,26 @@ function HomePage({ role, setRole }) {
       const search = locationSearch.toLowerCase()
       const inVenue = match.venue.toLowerCase().includes(search)
       const inAddress = match.address.toLowerCase().includes(search)
-      if (!inVenue && !inAddress) return false
+      const inTitle = match.title.toLowerCase().includes(search)
+      if (!inVenue && !inAddress && !inTitle) return false
     }
 
     // Date filter
     if (dateFilter === 'All') return true
 
     const today = new Date()
+    today.setHours(0, 0, 0, 0)
     const matchDate = new Date(match.date)
+    matchDate.setHours(0, 0, 0, 0)
 
     if (dateFilter === 'Today') {
-      return matchDate.toDateString() === today.toDateString()
+      return matchDate.getTime() === today.getTime()
     }
 
     if (dateFilter === 'Tomorrow') {
       const tomorrow = new Date(today)
       tomorrow.setDate(today.getDate() + 1)
-      return matchDate.toDateString() === tomorrow.toDateString()
+      return matchDate.getTime() === tomorrow.getTime()
     }
 
     if (dateFilter === 'This Week') {
@@ -66,7 +69,7 @@ function HomePage({ role, setRole }) {
     if (joinedMatches.includes(matchId)) return
     setJoinedMatches([...joinedMatches, matchId])
     setToast('Join request sent for ' + matchTitle)
-    setTimeout(function() { setToast(null) }, 3000)
+    setTimeout(function () { setToast(null) }, 3000)
   }
 
   return (
@@ -80,12 +83,12 @@ function HomePage({ role, setRole }) {
 
           <span className="filter-label">Skill Level</span>
 
-          {['All', 'Beginner', 'Intermediate', 'Advanced'].map(function(level) {
+          {['All', 'Beginner', 'Intermediate', 'Advanced'].map(function (level) {
             return (
               <button
                 key={level}
                 className={skillFilter === level ? 'filter-chip active' : 'filter-chip'}
-                onClick={function() { setSkillFilter(level) }}
+                onClick={function () { setSkillFilter(level) }}
               >
                 {level}
               </button>
@@ -96,12 +99,12 @@ function HomePage({ role, setRole }) {
 
           <span className="filter-label">Date</span>
 
-          {['All', 'Today', 'Tomorrow', 'This Week'].map(function(d) {
+          {['All', 'Today', 'Tomorrow', 'This Week'].map(function (d) {
             return (
               <button
                 key={d}
                 className={dateFilter === d ? 'filter-chip active' : 'filter-chip'}
-                onClick={function() { setDateFilter(d) }}
+                onClick={function () { setDateFilter(d) }}
               >
                 {d}
               </button>
@@ -114,7 +117,7 @@ function HomePage({ role, setRole }) {
               type="text"
               placeholder="Search location..."
               value={locationSearch}
-              onChange={function(e) { setLocationSearch(e.target.value) }}
+              onChange={function (e) { setLocationSearch(e.target.value) }}
             />
           </div>
 
@@ -142,14 +145,15 @@ function HomePage({ role, setRole }) {
             </div>
           ) : (
             <div className="cards-list">
-              {filtered.map(function(match) {
+              {filtered.map(function (match) {
                 return (
                   <MatchCard
                     key={match.id}
                     match={match}
                     joined={joinedMatches.includes(match.id)}
                     onJoin={handleJoin}
-                    onView={function() { navigate('/match/' + match.id) }}
+                    onView={function () { navigate('/match/' + match.id) }}
+                    role={role}
                   />
                 )
               })}
@@ -164,7 +168,7 @@ function HomePage({ role, setRole }) {
             matches={filtered}
             selectedPin={selectedPin}
             setSelectedPin={setSelectedPin}
-            onPinView={function(id) { navigate('/match/' + id) }}
+            onPinView={function (id) { navigate('/match/' + id) }}
           />
         </div>
 
@@ -182,7 +186,7 @@ export default HomePage
 
 
 // Match Card 
-function MatchCard({ match, joined, onJoin, onView }) {
+function MatchCard({ match, joined, onJoin, onView, role }) {
 
   const filled = match.maxPlayers - match.spotsLeft
   const percent = (filled / match.maxPlayers) * 100
@@ -253,16 +257,19 @@ function MatchCard({ match, joined, onJoin, onView }) {
         </span>
         <div className="match-buttons">
           <button className="btn-view" onClick={onView}>View</button>
-          <button
-            className={joined ? 'btn-join joined' : 'btn-join'}
-            onClick={function(e) {
-              e.stopPropagation()
-              onJoin(match.id, match.title)
-            }}
-          >
-            {joined ? 'Request Sent ✓' : 'Join now'}
-          </button>
+          {role === 'Player' && (
+            <button
+              className={joined ? 'btn-join joined' : 'btn-join'}
+              onClick={function (e) {
+                e.stopPropagation()
+                onJoin(match.id, match.title)
+              }}
+            >
+              {joined ? 'Request Sent ✓' : 'Join now'}
+            </button>
+          )}
         </div>
+
       </div>
 
     </div>
@@ -276,11 +283,11 @@ function MapPanel({ matches, selectedPin, setSelectedPin, onPinView }) {
     <div className="map-container">
 
       <svg className="map-svg-grid">
-        {[0,1,2,3,4,5,6,7,8,9].map(function(i) {
-          return <line key={'h'+i} x1="0" y1={i*10+'%'} x2="100%" y2={i*10+'%'} stroke="#86efac" strokeWidth="1" />
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (i) {
+          return <line key={'h' + i} x1="0" y1={i * 10 + '%'} x2="100%" y2={i * 10 + '%'} stroke="#86efac" strokeWidth="1" />
         })}
-        {[0,1,2,3,4,5,6,7,8,9].map(function(i) {
-          return <line key={'v'+i} x1={i*10+'%'} y1="0" x2={i*10+'%'} y2="100%" stroke="#86efac" strokeWidth="1" />
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (i) {
+          return <line key={'v' + i} x1={i * 10 + '%'} y1="0" x2={i * 10 + '%'} y2="100%" stroke="#86efac" strokeWidth="1" />
         })}
       </svg>
 
@@ -295,35 +302,33 @@ function MapPanel({ matches, selectedPin, setSelectedPin, onPinView }) {
         <IconLocation size={13} color="#16A34A" />
         Toronto, ON
       </div>
-{matches.map(function(match) {
-  return (
-    <div
-      key={match.id}
-      className="map-pin-wrapper"
-      style={{ top: match.pin.top, left: match.pin.left }}
-      onMouseEnter={function() { setSelectedPin(match.id) }}
-      onMouseLeave={function() { setSelectedPin(null) }}
-    >
-      <div className={selectedPin === match.id ? 'map-pin-circle selected' : 'map-pin-circle'}>
-        <div className="map-pin-dot" />
-      </div>
+      {matches.map(function (match) {
+        return (
+          <div
+            key={match.id}
+            className="map-pin-wrapper"
+            style={{ top: match.pin.top, left: match.pin.left }}
+            onMouseEnter={function () { setSelectedPin(match.id) }}
+            onMouseLeave={function () { setSelectedPin(null) }}
+            onClick={function () { onPinView(match.id) }}
+          >
+            <div className={selectedPin === match.id ? 'map-pin-circle selected' : 'map-pin-circle'}>
+              <div className="map-pin-dot" />
+            </div>
 
-      {selectedPin === match.id && (
-        <div className="map-pin-popup">
-          <h4>{match.title}</h4>
-          <p>{match.time} · {match.spotsLeft} spots left</p>
-          <button onClick={function(e) {
-            e.stopPropagation()
-            onPinView(match.id)
-          }}>
-            View match →
-          </button>
-        </div>
-      )}
-    </div>
-  )
-})}
-     
+            {selectedPin === match.id && (
+              <div className="map-pin-popup">
+                <h4>{match.title}</h4>
+                <p>{match.time} · {match.spotsLeft} spots left</p>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#16A34A' }}>
+                  Click to view →
+                </span>
+              </div>
+            )}
+          </div>
+        )
+      })}
+
     </div>
   )
 }

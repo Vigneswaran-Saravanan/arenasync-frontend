@@ -11,9 +11,30 @@ function Footer() {
           <div>
             <div className="footer-logo">
               {/* YOUR LOGO SVG HERE */}
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="#16A34A" />
-                <circle cx="12" cy="10" r="3" fill="white" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="42" height="50" viewBox="0 0 64 73">
+                <defs>
+                  <clipPath id="field">
+                    <circle cx="32" cy="29" r="19" />
+                  </clipPath>
+                </defs>
+
+                <path d="M32 3C17 3 5 15 5 30C5 42 12.5 52 22 60L32 73L42 60C51.5 52 59 42 59 30C59 15 47 3 32 3Z" fill="#16A34A" />
+
+                <circle cx="32" cy="29" r="20.5" fill="none" stroke="white" stroke-width="1.7" />
+
+                <circle cx="32" cy="29" r="19" fill="#16A34A" />
+
+                <g clip-path="url(#field)" fill="none" stroke="white" stroke-width="0.9"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="14" y="9" width="36" height="40" />
+                  <line x1="14" y1="29" x2="50" y2="29" />
+                  <circle cx="32" cy="29" r="7" />
+                  <circle cx="32" cy="29" r="0.8" fill="white" stroke="none" />
+                  <rect x="19" y="9" width="26" height="9" />
+                  <rect x="23" y="9" width="18" height="4" />
+                  <rect x="19" y="40" width="26" height="9" />
+                  <rect x="23" y="45" width="18" height="4" />
+                </g>
               </svg>
               <span className="footer-logo-text">
                 Arena<span className="footer-logo-green">Sync</span>

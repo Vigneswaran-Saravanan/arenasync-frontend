@@ -22,7 +22,7 @@ const matches = [
     venue: 'Lamport Stadium',
     address: '1155 King St W, Toronto',
     date: '2026-06-04',
-    dateLabel: 'Wed, Jun 4',
+    dateLabel: 'Wed, Jun 3',
     time: '7:00 PM',
     skillLevel: 'Intermediate',
     maxPlayers: 12,
@@ -48,7 +48,7 @@ const matches = [
     weather: { temp: '25°C', condition: 'Clear' },
     tag: 'Filling Fast',
     description: 'Advanced level only. Cleats required.',
-    pin: { top: '30%', left: '68%' },
+    pin: { top: '45%', left: '68%' },
   },
   {
     id: 4,
@@ -56,7 +56,7 @@ const matches = [
     venue: 'Riverdale Park East',
     address: '550 Broadview Ave, Toronto',
     date: '2026-06-05',
-    dateLabel: 'Thu, Jun 5',
+    dateLabel: 'Thu, Jun 4',
     time: '6:30 PM',
     skillLevel: 'Beginner',
     maxPlayers: 14,
@@ -65,7 +65,7 @@ const matches = [
     weather: { temp: '20°C', condition: 'Partly Cloudy' },
     tag: null,
     description: 'Friendly Thursday game. Great for beginners.',
-    pin: { top: '17%', left: '50%' },
+    pin: { top: '65%', left: '50%' },
   },
 ]
 

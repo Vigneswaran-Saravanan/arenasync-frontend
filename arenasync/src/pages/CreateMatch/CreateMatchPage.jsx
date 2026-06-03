@@ -5,7 +5,7 @@ import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
 import IconLocation from '../../components/icons/IconLocation'
 
-function CreateMatchPage({ role, setRole }) {
+function CreateMatchPage({ role, setRole, addMatch }) {
 
   const navigate = useNavigate()
 
@@ -31,13 +31,37 @@ function CreateMatchPage({ role, setRole }) {
   }
 
   function handleSubmit() {
-    const newErrors = validate()
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return
-    }
-    setSubmitted(true)
+  const newErrors = validate()
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors)
+    return
   }
+
+  // Build the new match object
+  const newMatch = {
+    id: Date.now(),
+    title: title,
+    venue: venue,
+    address: address || 'Toronto, ON',
+    date: date,
+    dateLabel: date,
+    time: time,
+    skillLevel: skillLevel,
+    maxPlayers: maxPlayers,
+    spotsLeft: maxPlayers,
+    organizer: 'You',
+    weather: { temp: '20°C', condition: 'Clear' },
+    tag: 'New',
+    description: notes || 'Match created by organizer.',
+    pin: { top: '40%', left: '45%' },
+  }
+
+  // Add to the matches list in App.jsx
+  addMatch(newMatch)
+
+  // Show success screen
+  setSubmitted(true)
+}
 
   function increaseMax() {
     if (maxPlayers < 22) setMaxPlayers(maxPlayers + 1)

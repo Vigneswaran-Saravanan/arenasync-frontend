@@ -8,15 +8,15 @@ import IconCalendar from '../../components/icons/IconCalendar'
 import IconClock from '../../components/icons/IconClock'
 import IconUser from '../../components/icons/IconUser'
 import IconCheck from '../../components/icons/IconCheck'
-import matches from '../../data/matches'
 
-function MatchDetailPage({ role, setRole }) {
+
+function MatchDetailPage({ role, setRole, matches  }) {
 
   const { id } = useParams()
   const navigate = useNavigate()
 
   // Find the match by id from URL
-  const match = matches.find(function(m) {
+  const match = matches.find(function (m) {
     return m.id === parseInt(id)
   })
 
@@ -41,7 +41,7 @@ function MatchDetailPage({ role, setRole }) {
         <div style={{ padding: 60, textAlign: 'center' }}>
           <h2>Match not found</h2>
           <button
-            onClick={function() { navigate('/') }}
+            onClick={function () { navigate('/') }}
             style={{ marginTop: 16, padding: '10px 24px', background: '#16A34A', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
           >
             Back to Home
@@ -93,7 +93,7 @@ function MatchDetailPage({ role, setRole }) {
       <div className="match-detail-content">
 
         {/* Back button */}
-        <button className="back-btn" onClick={function() { navigate('/') }}>
+        <button className="back-btn" onClick={function () { navigate('/') }}>
           ← Back to Matches
         </button>
 
@@ -105,8 +105,8 @@ function MatchDetailPage({ role, setRole }) {
           <div className="detail-address-row">
             <IconLocation size={14} color="#9CA3AF" />
             <span>{match.address}</span>
-            
-              <a href={'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(match.address)}
+
+            <a href={'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(match.address)}
               target="_blank"
               rel="noreferrer"
             >
@@ -160,7 +160,7 @@ function MatchDetailPage({ role, setRole }) {
           <h3>Players ({confirmedPlayers.length}/{match.maxPlayers})</h3>
           <div className="slots-grid">
 
-            {confirmedPlayers.map(function(player) {
+            {confirmedPlayers.map(function (player) {
               return (
                 <div key={player.id} className="slot-filled">
                   <div className={player.isOrganizer ? 'slot-avatar organizer' : 'slot-avatar'}>
@@ -172,7 +172,7 @@ function MatchDetailPage({ role, setRole }) {
               )
             })}
 
-            {Array.from({ length: emptySlots }).map(function(_, i) {
+            {Array.from({ length: emptySlots }).map(function (_, i) {
               return (
                 <div key={'empty-' + i} className="slot-empty">
                   <div className="slot-empty-circle">+</div>
@@ -193,7 +193,7 @@ function MatchDetailPage({ role, setRole }) {
           </div>
 
           <div className="chat-messages">
-            {messages.map(function(msg) {
+            {messages.map(function (msg) {
               return (
                 <div key={msg.id} className={msg.own ? 'chat-message own' : 'chat-message other'}>
                   {!msg.own && <span className="chat-sender">{msg.sender}</span>}
@@ -211,8 +211,8 @@ function MatchDetailPage({ role, setRole }) {
               type="text"
               placeholder="Type a message..."
               value={chatInput}
-              onChange={function(e) { setChatInput(e.target.value) }}
-              onKeyDown={function(e) { if (e.key === 'Enter') handleSend() }}
+              onChange={function (e) { setChatInput(e.target.value) }}
+              onKeyDown={function (e) { if (e.key === 'Enter') handleSend() }}
             />
             <button className="btn-send" onClick={handleSend}>Send</button>
           </div>
@@ -225,13 +225,25 @@ function MatchDetailPage({ role, setRole }) {
       <div className="sticky-bottom">
         <div className="sticky-bottom-inner">
 
-          {joinStatus === 'none' && (
+          {joinStatus === 'none' && role === 'Player' && (
             <button
               className="btn-request-join"
-              onClick={function() { setJoinStatus('pending') }}
+              onClick={function () { setJoinStatus('pending') }}
             >
               Request to Join
             </button>
+          )}
+
+          {joinStatus === 'none' && role === 'Organizer' && (
+            <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: 10, padding: 14, textAlign: 'center', color: '#15803D', fontWeight: 600, fontSize: 14 }}>
+              Switch to Manage Match to control this match
+            </div>
+          )}
+
+          {joinStatus === 'none' && role === 'Venue Host' && (
+            <div style={{ background: '#F3F4F6', borderRadius: 10, padding: 14, textAlign: 'center', color: '#6B7280', fontWeight: 600, fontSize: 14 }}>
+              Venue host view only
+            </div>
           )}
 
           {joinStatus === 'pending' && (
@@ -242,7 +254,7 @@ function MatchDetailPage({ role, setRole }) {
               </div>
               <button
                 className="btn-cancel-request"
-                onClick={function() { setShowLeaveModal(true) }}
+                onClick={function () { setShowLeaveModal(true) }}
               >
                 Cancel
               </button>
@@ -267,13 +279,13 @@ function MatchDetailPage({ role, setRole }) {
             <div className="modal-buttons">
               <button
                 className="btn-modal-cancel"
-                onClick={function() { setShowLeaveModal(false) }}
+                onClick={function () { setShowLeaveModal(false) }}
               >
                 Keep Request
               </button>
               <button
                 className="btn-modal-confirm"
-                onClick={function() {
+                onClick={function () {
                   setJoinStatus('left')
                   setShowLeaveModal(false)
                 }}

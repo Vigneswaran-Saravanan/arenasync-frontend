@@ -422,6 +422,8 @@
   box-shadow: 0 4px 16px rgba(0,0,0,0.15);
   z-index: 50;
   pointer-events: none;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .map-pin-popup button {
