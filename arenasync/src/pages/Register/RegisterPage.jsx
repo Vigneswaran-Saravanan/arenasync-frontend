@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { useNavgiate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import './RegisterPage.css'
 import { registerUser } from "../../services/api"
 
 function RegisterPage() {
 
-    const navigate = useNavgiate()
+    const navigate = useNavigate()
 
     //Form field value
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = ('')
+    const [confirmPassword, setConfirmPassword] = useState('')
     const [role, setRole] = useState('')
     const [city, setCity] = useState('')
     const [skillLevel, setSkillLevel] = useState('')
