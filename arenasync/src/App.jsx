@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import RegisterPage from './pages/Register/RegisterPage'
+import LoginPage from './pages/Login/LoginPage'
 import HomePage from './pages/Home/HomePage'
 import MatchDetailPage from './pages/MatchDetail/MatchDetailPage'
 import MyMatchesPage from './pages/MyMatches/MyMatchesPage'
@@ -7,6 +9,7 @@ import CreateMatchPage from './pages/CreateMatch/CreateMatchPage'
 import OrganizerMatchPage from './pages/OrganizerMatch/OrganizerMatchPage'
 import VenueDashboardPage from './pages/VenueDashboard/VenueDashboardPage'
 import initialMatches from './data/matches'
+
 
 function App() {
   const [role, setRole] = useState('Player')
@@ -22,6 +25,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<HomePage role={role} setRole={setRole} matches={allMatches} />} />
         <Route path="/match/:id" element={<MatchDetailPage role={role} setRole={setRole} matches={allMatches} />} />
         <Route path="/my-matches" element={<MyMatchesPage role={role} setRole={setRole} />} />
