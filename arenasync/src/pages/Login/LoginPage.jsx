@@ -79,12 +79,12 @@ function LoginPage() {
 
                         <path d="M32 3C17 3 5 15 5 30C5 42 12.5 52 22 60L32 73L42 60C51.5 52 59 42 59 30C59 15 47 3 32 3Z" fill="#16A34A" />
 
-                        <circle cx="32" cy="29" r="20.5" fill="none" stroke="white" stroke-width="1.7" />
+                        <circle cx="32" cy="29" r="20.5" fill="none" stroke="white" strokeWidth="1.7" />
 
                         <circle cx="32" cy="29" r="19" fill="#16A34A" />
 
-                        <g clip-path="url(#field)" fill="none" stroke="white" stroke-width="0.9"
-                            stroke-linecap="round" stroke-linejoin="round">
+                        <g clipPath="url(#field)" fill="none" stroke="white" strokeWidth="0.9"
+                            strokeLinecap="round" strokeLinejoin="round">
                             <rect x="14" y="9" width="36" height="40" />
                             <line x1="14" y1="29" x2="50" y2="29" />
                             <circle cx="32" cy="29" r="7" />
