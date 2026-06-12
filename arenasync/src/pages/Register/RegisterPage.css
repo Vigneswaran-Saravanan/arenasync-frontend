@@ -1,0 +1,193 @@
+.register-page {
+  min-height: 100vh;
+  background-color: var(--page-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.register-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+}
+
+.register-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.register-logo-text {
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--dark);
+}
+
+.register-logo-green {
+  color: var(--green);
+}
+
+.register-heading {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dark);
+  text-align: center;
+  margin: 0 0 6px 0;
+}
+
+.register-subheading {
+  font-size: 14px;
+  color: var(--muted);
+  text-align: center;
+  margin: 0 0 28px 0;
+}
+
+/* Form groups */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--body);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--body);
+  outline: none;
+  transition: border-color 0.15s;
+  background: white;
+}
+
+.form-input:focus {
+  border-color: var(--green);
+}
+
+.form-input.error {
+  border-color: #DC2626;
+}
+
+.form-error {
+  font-size: 12px;
+  color: #DC2626;
+  margin-top: 4px;
+}
+
+/* Role pills */
+.role-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.role-pill {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-light);
+  background: var(--white);
+  color: var(--body);
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.role-pill.active {
+  background: var(--green);
+  color: var(--white);
+  border-color: var(--green);
+}
+
+/* Skill pills */
+.skill-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.skill-pill {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-light);
+  background: var(--white);
+  color: var(--body);
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.skill-pill.active {
+  background: var(--green);
+  color: var(--white);
+  border-color: var(--green);
+}
+
+/* Submit button */
+.btn-register {
+  width: 100%;
+  padding: 13px;
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.15s;
+}
+
+.btn-register:hover {
+  background: var(--green-dark);
+}
+
+.btn-register:disabled {
+  background: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Error banner */
+.error-banner {
+  background: #FEE2E2;
+  border: 1px solid #FCA5A5;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #DC2626;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* Bottom link */
+.register-bottom {
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 20px;
+}
+
+.register-bottom span {
+  color: var(--green);
+  font-weight: 600;
+  cursor: pointer;
+}
