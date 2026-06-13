@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import './LoginPage.css'
 import { loginUser } from '../../services/api'
 
-function LoginPage() {
+function LoginPage({setRole}) {
 
     const navigate = useNavigate()
 
@@ -49,6 +49,7 @@ function LoginPage() {
             // Save token and user info to localStorage
             localStorage.setItem('token', response.data.token)
             localStorage.setItem('user', JSON.stringify(response.data.user))
+            setRole(response.data.user.role)
 
             // Redirect to home page
             navigate('/')

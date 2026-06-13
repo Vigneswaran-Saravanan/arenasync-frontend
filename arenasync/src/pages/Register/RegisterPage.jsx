@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import './RegisterPage.css'
 import { registerUser } from "../../services/api"
 
-function RegisterPage() {
+function RegisterPage({setRole}) {
 
     const navigate = useNavigate()
 
@@ -87,6 +87,7 @@ function RegisterPage() {
             // This keeps the user logged in after page refresh
             localStorage.setItem('token', response.data.token)
             localStorage.setItem('user', JSON.stringify(response.data.user))
+            setRole(response.data.user.role)
 
             // Redirect to home page
             navigate('/')

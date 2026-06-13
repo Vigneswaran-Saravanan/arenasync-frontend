@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import RegisterPage from './pages/Register/RegisterPage'
 import LoginPage from './pages/Login/LoginPage'
@@ -12,7 +12,14 @@ import initialMatches from './data/matches'
 
 
 function App() {
-  const [role, setRole] = useState('Player')
+
+  // Try to load the logged-in user from localstorage
+  // This keeps the user logged in even after the page refresh
+  const storedUser = localStorage.getItem('user')
+  const intialUser = storedUser ? JSON.parse(storedUser) : null 
+
+  // Role comes form the logged-in user, default to 'Player' 
+  const [role, setRole] = useState(intialUser ? intialUser.role : 'Player')
 
   // Stores all matches including new ones created by organizer
   const [allMatches, setAllMatches] = useState(initialMatches)
@@ -25,8 +32,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage setRole={setRole} />} />
+        <Route path="/login" element={<LoginPage setRole={setRole} />} />
         <Route path="/" element={<HomePage role={role} setRole={setRole} matches={allMatches} />} />
         <Route path="/match/:id" element={<MatchDetailPage role={role} setRole={setRole} matches={allMatches} />} />
         <Route path="/my-matches" element={<MyMatchesPage role={role} setRole={setRole} />} />
