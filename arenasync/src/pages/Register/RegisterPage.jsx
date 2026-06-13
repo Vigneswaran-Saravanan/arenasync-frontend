@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import './RegisterPage.css'
 import { registerUser } from "../../services/api"
 
-function RegisterPage({setRole}) {
+function RegisterPage({ setRole }) {
 
     const navigate = useNavigate()
 
@@ -12,7 +12,7 @@ function RegisterPage({setRole}) {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
-    const [role, setRole] = useState('')
+    const [selectedRole, setSelectedRole] = useState('')
     const [city, setCity] = useState('')
     const [skillLevel, setSkillLevel] = useState('')
 
@@ -78,7 +78,7 @@ function RegisterPage({setRole}) {
                 name,
                 email,
                 password,
-                role,
+                role: selectedRole,
                 city,
                 skillLevel,
             })
@@ -239,8 +239,8 @@ function RegisterPage({setRole}) {
                             return (
                                 <button
                                     key={r}
-                                    className={role === r ? 'role-pill active' : 'role-pill'}
-                                    onClick={function () { setRole(r) }}
+                                    className={selectedRole === r ? 'role-pill active' : 'role-pill'}
+                                    onClick={function () { setSelectedRole(r) }}
                                 >
                                     {r}
                                 </button>
