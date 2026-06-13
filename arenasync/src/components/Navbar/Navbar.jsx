@@ -7,14 +7,23 @@ import IconCalendar from '../icons/IconCalendar'
 import IconUser from '../icons/IconUser'
 import IconPlus from '../icons/IconPlus'
 import IconBuilding from '../icons/IconBuilding'
-import IconChevron from '../icons/IconChevron'
 
 function Navbar({ role, setRole }) {
   const navigate = useNavigate()
   const location = useLocation()
 
   const [showNotif, setShowNotif] = useState(false)
-  const [showRoleMenu, setShowRoleMenu] = useState(false)
+  const [showUserMenu, setShowUserMenu] = useState(false)
+
+  // Get logged in user from localStorage
+  const storedUser = localStorage.getItem('user')
+  const currentUser = storedUser ? JSON.parse(storedUser) : null
+
+  // Get first letter of name for avatar
+  const avatarLetter = currentUser ? currentUser.name.charAt(0).toUpperCase() : 'U'
+
+  // Get first name only for display
+  const firstName = currentUser ? currentUser.name.split(' ')[0] : 'User'
 
   // Check if a path is the current page
   function isActive(path) {
@@ -27,6 +36,14 @@ function Navbar({ role, setRole }) {
     if (r === 'Venue Host') return 'role-badge role-badge-venuehost'
     if (r === 'Admin') return 'role-badge role-badge-admin'
     return 'role-badge role-badge-player'
+  }
+
+  // Logout function
+  function handleLogout() {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setRole('Player')
+    navigate('/login')
   }
 
   // Notifications per role
@@ -111,29 +128,24 @@ function Navbar({ role, setRole }) {
   }
 
   const notifs = notifsByRole[role] || []
-  const unreadCount = notifs.filter(function (n) { return !n.read }).length
+  const unreadCount = notifs.filter(function(n) { return !n.read }).length
 
   return (
     <>
       <nav className={role === 'Admin' ? 'navbar navbar-admin' : 'navbar'}>
         <div className="navbar-inner">
 
-          {/* Logo — replace SVG with your own logo SVG */}
-          <div className="navbar-logo" onClick={function () { navigate('/') }}>
-            {/* YOUR LOGO SVG GOES HERE */}
+          {/* Logo */}
+          <div className="navbar-logo" onClick={function() { navigate('/') }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="42" height="50" viewBox="0 0 64 73">
               <defs>
                 <clipPath id="field">
                   <circle cx="32" cy="29" r="19" />
                 </clipPath>
               </defs>
-
               <path d="M32 3C17 3 5 15 5 30C5 42 12.5 52 22 60L32 73L42 60C51.5 52 59 42 59 30C59 15 47 3 32 3Z" fill="#16A34A" />
-
               <circle cx="32" cy="29" r="20.5" fill="none" stroke="white" strokeWidth="1.7" />
-
               <circle cx="32" cy="29" r="19" fill="#16A34A" />
-
               <g clipPath="url(#field)" fill="none" stroke="white" strokeWidth="0.9"
                 strokeLinecap="round" strokeLinejoin="round">
                 <rect x="14" y="9" width="36" height="40" />
@@ -151,12 +163,12 @@ function Navbar({ role, setRole }) {
             </span>
           </div>
 
-          {/* Navigation links — change based on role */}
+          {/* Navigation links */}
           <div className="navbar-links">
 
             <button
               className={isActive('/') ? 'nav-link-btn active' : 'nav-link-btn'}
-              onClick={function () { navigate('/') }}
+              onClick={function() { navigate('/') }}
             >
               <IconHome size={15} color={isActive('/') ? '#16A34A' : '#6B7280'} />
               Home
@@ -165,7 +177,7 @@ function Navbar({ role, setRole }) {
             {role === 'Player' && (
               <button
                 className={isActive('/my-matches') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function () { navigate('/my-matches') }}
+                onClick={function() { navigate('/my-matches') }}
               >
                 <IconCalendar size={15} color={isActive('/my-matches') ? '#16A34A' : '#6B7280'} />
                 My Matches
@@ -175,7 +187,7 @@ function Navbar({ role, setRole }) {
             {role === 'Organizer' && (
               <button
                 className={isActive('/organizer-match/1') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function () { navigate('/organizer-match/1') }}
+                onClick={function() { navigate('/organizer-match/1') }}
               >
                 <IconCalendar size={15} color={isActive('/organizer-match/1') ? '#16A34A' : '#6B7280'} />
                 Manage Match
@@ -185,7 +197,7 @@ function Navbar({ role, setRole }) {
             {role === 'Organizer' && (
               <button
                 className={isActive('/create-match') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function () { navigate('/create-match') }}
+                onClick={function() { navigate('/create-match') }}
               >
                 <IconPlus size={15} color={isActive('/create-match') ? '#16A34A' : '#6B7280'} />
                 Create Match
@@ -195,7 +207,7 @@ function Navbar({ role, setRole }) {
             {role === 'Venue Host' && (
               <button
                 className={isActive('/venue-dashboard') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function () { navigate('/venue-dashboard') }}
+                onClick={function() { navigate('/venue-dashboard') }}
               >
                 <IconBuilding size={15} color={isActive('/venue-dashboard') ? '#16A34A' : '#6B7280'} />
                 My Venue
@@ -215,9 +227,9 @@ function Navbar({ role, setRole }) {
             {/* Bell */}
             <div
               className="navbar-bell"
-              onClick={function () {
+              onClick={function() {
                 setShowNotif(!showNotif)
-                setShowRoleMenu(false)
+                setShowUserMenu(false)
               }}
             >
               <IconBell size={21} color={role === 'Admin' ? '#9CA3AF' : '#6B7280'} />
@@ -226,43 +238,45 @@ function Navbar({ role, setRole }) {
               )}
             </div>
 
-            {/* Role switcher */}
+            {/* Role badge — shows current role, not clickable */}
+            <span className={getRoleBadgeClass(role)}>{role}</span>
+
+            {/* User avatar + dropdown */}
             <div style={{ position: 'relative' }}>
-              <button
-                className="role-switcher-btn"
-                onClick={function () {
-                  setShowRoleMenu(!showRoleMenu)
+              <div
+                className="navbar-avatar"
+                onClick={function() {
+                  setShowUserMenu(!showUserMenu)
                   setShowNotif(false)
                 }}
               >
-                <span className={getRoleBadgeClass(role)}>{role}</span>
-                <IconChevron size={13} color="#6B7280" />
-              </button>
+                {avatarLetter}
+              </div>
 
-              {showRoleMenu && (
+              {/* User dropdown menu */}
+              {showUserMenu && (
                 <div className="role-dropdown">
-                  <div className="role-dropdown-label">Switch Role</div>
-                  {['Player', 'Organizer', 'Venue Host', 'Admin'].map(function (r) {
-                    return (
-                      <button
-                        key={r}
-                        className={role === r ? 'role-option-btn selected' : 'role-option-btn'}
-                        onClick={function () {
-                          setRole(r)
-                          setShowRoleMenu(false)
-                          navigate('/')
-                        }}
-                      >
-                        {role === r ? '✓ ' : ''}{r}
-                      </button>
-                    )
-                  })}
+                  <div className="role-dropdown-label">
+                    {firstName}
+                  </div>
+                  <div style={{
+                    padding: '8px 14px',
+                    fontSize: 12,
+                    color: '#6B7280',
+                    borderBottom: '1px solid #F3F4F6'
+                  }}>
+                    {currentUser ? currentUser.email : ''}
+                  </div>
+                  <button
+                    className="role-option-btn"
+                    onClick={handleLogout}
+                    style={{ color: '#DC2626', fontWeight: 600 }}
+                  >
+                    Logout
+                  </button>
                 </div>
               )}
             </div>
-
-            {/* Avatar */}
-            <div className="navbar-avatar">VS</div>
 
           </div>
         </div>
@@ -271,27 +285,26 @@ function Navbar({ role, setRole }) {
       {/* Notification panel */}
       {showNotif && (
         <>
-          <div className="notif-overlay" onClick={function () { setShowNotif(false) }} />
+          <div className="notif-overlay" onClick={function() { setShowNotif(false) }} />
           <div className="notif-panel">
             <div className="notif-header">
               <span>Notifications</span>
-              <button className="notif-mark-read" onClick={function () { setShowNotif(false) }}>
+              <button className="notif-mark-read" onClick={function() { setShowNotif(false) }}>
                 Mark all read
               </button>
             </div>
             <div className="notif-list">
-              {notifs.map(function (n) {
+              {notifs.map(function(n) {
                 return (
                   <div key={n.id} className={n.read ? 'notif-item' : 'notif-item unread'}>
                     <p className="notif-item-title">{n.title}</p>
                     <p className="notif-item-message">{n.message}</p>
                     <p className="notif-item-time">{n.time}</p>
 
-                    {/* Show Accept/Decline only for organizer join request notifs */}
                     {n.isRequest && (
                       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                         <button
-                          onClick={function () {
+                          onClick={function() {
                             alert('Request accepted! Player has been notified.')
                             setShowNotif(false)
                           }}
@@ -300,7 +313,7 @@ function Navbar({ role, setRole }) {
                           Accept
                         </button>
                         <button
-                          onClick={function () {
+                          onClick={function() {
                             alert('Request declined. Player has been notified.')
                             setShowNotif(false)
                           }}
@@ -319,12 +332,12 @@ function Navbar({ role, setRole }) {
       )}
 
       {/* Close dropdowns when clicking outside */}
-      {(showNotif || showRoleMenu) && (
+      {(showNotif || showUserMenu) && (
         <div
           style={{ position: 'fixed', inset: 0, zIndex: 99 }}
-          onClick={function () {
+          onClick={function() {
             setShowNotif(false)
-            setShowRoleMenu(false)
+            setShowUserMenu(false)
           }}
         />
       )}
