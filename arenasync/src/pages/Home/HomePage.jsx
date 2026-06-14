@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import './HomePage.css'
 import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
@@ -9,7 +10,7 @@ import IconClock from '../../components/icons/IconClock'
 import IconUser from '../../components/icons/IconUser'
 
 
-function HomePage({ role, setRole, matches }) {
+function HomePage({ role, setRole }) {
 
   const navigate = useNavigate()
 
@@ -19,9 +20,57 @@ function HomePage({ role, setRole, matches }) {
   const [joinedMatches, setJoinedMatches] = useState([])
   const [toast, setToast] = useState(null)
   const [selectedPin, setSelectedPin] = useState(null)
+  // Real matches from backend
+  const [matches, setMatches] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  // Fetch matches from backend when page loads
+  useEffect(function() {
+    async function fetchMatches() {
+      try {
+        setLoading(true)
+        const response = await axios.get('http://localhost:5000/api/matches')
+        setMatches(response.data.matches)
+      } catch (err) {
+        setError('Failed to load matches. Please try again.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchMatches()
+  }, [])
+
+  // Format backend data to match what components expect
+  const formattedMatches = matches.map(function(match) {
+    const confirmedPlayers = match.players.filter(function(p) {
+      return p.status === 'confirmed'
+    })
+    return {
+      id: match._id,
+      title: match.title,
+      venue: match.venue,
+      address: match.address,
+      date: match.date,
+      dateLabel: new Date(match.date).toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      }),
+      time: match.time,
+      skillLevel: match.skillLevel,
+      maxPlayers: match.maxPlayers,
+      spotsLeft: match.maxPlayers - confirmedPlayers.length,
+      organizer: match.organizer ? match.organizer.name : 'Unknown',
+      weather: match.weather || { temp: '20°C', condition: 'Clear' },
+      tag: null,
+      description: match.description,
+      pin: match.pin || { top: '50%', left: '50%' },
+    }
+  })
 
   // Filter matches based on all three filters
-  const filtered = matches.filter(function (match) {
+  const filtered = formattedMatches.filter(function (match) {
 
     // Skill filter
     if (skillFilter !== 'All' && match.skillLevel !== skillFilter) {
@@ -135,7 +184,22 @@ function HomePage({ role, setRole, matches }) {
             <span className="panel-count">{filtered.length} matches found</span>
           </div>
 
-          {filtered.length === 0 ? (
+          {/* Loading state */}
+          {loading && (
+            <div style={{ textAlign: 'center', padding: '40px 0', color: '#6B7280' }}>
+              Loading matches...
+            </div>
+          )}
+
+          {/* Error state */}
+          {error && (
+            <div style={{ textAlign: 'center', padding: '40px 0', color: '#DC2626' }}>
+              {error}
+            </div>
+          )}
+
+          {/* Added !loading && !error && */}
+          {!loading && !error && filtered.length === 0 ? (
             <div className="empty-state">
               <div className="empty-state-icon">
                 <IconLocation size={22} color="#9CA3AF" />
@@ -302,6 +366,7 @@ function MapPanel({ matches, selectedPin, setSelectedPin, onPinView }) {
         <IconLocation size={13} color="#16A34A" />
         Toronto, ON
       </div>
+
       {matches.map(function (match) {
         return (
           <div
