@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import './MatchDetailPage.css'
 import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
@@ -10,18 +11,22 @@ import IconUser from '../../components/icons/IconUser'
 import IconCheck from '../../components/icons/IconCheck'
 
 
-function MatchDetailPage({ role, setRole, matches  }) {
+function MatchDetailPage({ role, setRole }) {
 
   const { id } = useParams()
   const navigate = useNavigate()
 
-  // Find the match by id from URL
-  const match = matches.find(function (m) {
-    return m.id === parseInt(id)
-  })
+  // Real match data from backend
+  const [match, setMatch] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  // Join status: 'none', 'pending', 'left'
+  // Join status: 'none', 'pending', 'confirmed'
   const [joinStatus, setJoinStatus] = useState('none')
+
+  // Action loading and message for join/leave feedback
+  const [actionLoading, setActionLoading] = useState(false)
+  const [actionMsg, setActionMsg] = useState('')
 
   // Chat messages
   const [chatInput, setChatInput] = useState('')
@@ -33,13 +38,65 @@ function MatchDetailPage({ role, setRole, matches  }) {
   // Show leave confirmation dialog
   const [showLeaveModal, setShowLeaveModal] = useState(false)
 
-  // If match not found
-  if (!match) {
+  // Get logged in user from localStorage
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
+  const currentUserId = currentUser._id
+
+  // Fetch match from backend when page loads
+  useEffect(function () {
+    async function fetchMatch() {
+      try {
+        const token = localStorage.getItem('token')
+        const res = await axios.get('http://localhost:5000/api/matches/' + id, {
+          headers: { Authorization: 'Bearer ' + token }
+        })
+        setMatch(res.data.match)
+
+        // Check if current user already joined this match
+        const myEntry = res.data.match.players?.find(function (p) {
+          return (p.user?._id || p.user) === currentUserId
+        })
+        if (myEntry?.status === 'confirmed') setJoinStatus('confirmed')
+        else if (myEntry?.status === 'pending') setJoinStatus('pending')
+        else setJoinStatus('none')
+
+      } catch (err) {
+        setError('Match not found or you are not authorized.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchMatch()
+  }, [id])
+
+  // Re-fetch match after join or leave so slot grid updates
+  async function refetchMatch() {
+    const token = localStorage.getItem('token')
+    const res = await axios.get('http://localhost:5000/api/matches/' + id, {
+      headers: { Authorization: 'Bearer ' + token }
+    })
+    setMatch(res.data.match)
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="match-detail-page">
+        <Navbar role={role} setRole={setRole} />
+        <div style={{ padding: 60, textAlign: 'center', color: '#6B7280', fontSize: 15 }}>
+          Loading match...
+        </div>
+      </div>
+    )
+  }
+
+  // If match not found or error
+  if (error || !match) {
     return (
       <div className="match-detail-page">
         <Navbar role={role} setRole={setRole} />
         <div style={{ padding: 60, textAlign: 'center' }}>
-          <h2>Match not found</h2>
+          <h2>{error || 'Match not found'}</h2>
           <button
             onClick={function () { navigate('/') }}
             style={{ marginTop: 16, padding: '10px 24px', background: '#16A34A', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
@@ -51,16 +108,18 @@ function MatchDetailPage({ role, setRole, matches  }) {
     )
   }
 
-  // Confirmed players dummy data
-  const confirmedPlayers = [
-    { id: 1, name: 'Carlos Mendez', initials: 'CM', isOrganizer: true },
-    { id: 2, name: 'Aiden Park', initials: 'AP' },
-    { id: 3, name: 'Marcus Cole', initials: 'MC' },
-    { id: 4, name: 'Reza Tehrani', initials: 'RT' },
-    { id: 5, name: 'Sophie Lane', initials: 'SL' },
-  ]
+  // Real confirmed players from backend
+  const confirmedPlayers = match.players?.filter(function (p) {
+    return p.status === 'confirmed'
+  }) || []
 
   const emptySlots = match.maxPlayers - confirmedPlayers.length
+  const isFull = emptySlots <= 0
+
+  // Format date from MongoDB
+  const formattedDate = match.date
+    ? new Date(match.date).toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' })
+    : 'TBD'
 
   // Send chat message
   function handleSend() {
@@ -82,8 +141,46 @@ function MatchDetailPage({ role, setRole, matches  }) {
     return 'skill-badge skill-advanced'
   }
 
-  // Weather icon
-  const weatherIcon = (match.weather.condition === 'Sunny' || match.weather.condition === 'Clear') ? '☀️' : '🌥️'
+  // Request to join — calls backend API
+  async function handleJoinRequest() {
+    setActionLoading(true)
+    setActionMsg('')
+    try {
+      const token = localStorage.getItem('token')
+      await axios.post(
+        'http://localhost:5000/api/matches/' + id + '/join',
+        {},
+        { headers: { Authorization: 'Bearer ' + token } }
+      )
+      setJoinStatus('pending')
+      setActionMsg('Request sent — waiting for organizer approval.')
+      await refetchMatch()
+    } catch (err) {
+      setActionMsg(err.response?.data?.message || 'Could not send request.')
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  // Leave match or cancel request — calls backend API
+  async function handleLeave() {
+    setActionLoading(true)
+    setActionMsg('')
+    try {
+      const token = localStorage.getItem('token')
+      await axios.delete(
+        'http://localhost:5000/api/matches/' + id + '/leave',
+        { headers: { Authorization: 'Bearer ' + token } }
+      )
+      setJoinStatus('none')
+      setActionMsg('You have left this match.')
+      await refetchMatch()
+    } catch (err) {
+      setActionMsg(err.response?.data?.message || 'Could not leave match.')
+    } finally {
+      setActionLoading(false)
+    }
+  }
 
   return (
     <div className="match-detail-page">
@@ -94,7 +191,7 @@ function MatchDetailPage({ role, setRole, matches  }) {
 
         {/* Back button */}
         <button className="back-btn" onClick={function () { navigate('/') }}>
-          ← Back to Matches
+          Back to Matches
         </button>
 
         {/* Match Header Card */}
@@ -104,36 +201,36 @@ function MatchDetailPage({ role, setRole, matches  }) {
 
           <div className="detail-address-row">
             <IconLocation size={14} color="#9CA3AF" />
-            <span>{match.address}</span>
+            <span>{match.venue} — {match.address}</span>
 
-            <a href={'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(match.address)}
+            <a href={'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(match.address || '')}
               target="_blank"
               rel="noreferrer"
             >
-              Get Directions →
+              Get Directions
             </a>
           </div>
 
           <div className="detail-chips">
             <div className="detail-chip">
               <IconCalendar size={12} color="#6B7280" />
-              {match.dateLabel}
+              {formattedDate}
             </div>
             <div className="detail-chip">
               <IconClock size={12} color="#6B7280" />
-              {match.time}
+              {match.time || 'TBD'}
             </div>
             <span className={getSkillClass(match.skillLevel)}>
               {match.skillLevel}
             </span>
             <div className="detail-chip">
               <IconUser size={12} color="#6B7280" />
-              {match.spotsLeft} spots left
+              {emptySlots} spots left
             </div>
           </div>
 
           <div className="detail-organizer">
-            Organized by <strong>{match.organizer}</strong>
+            Organized by <strong>{match.organizer?.name || 'Organizer'}</strong>
           </div>
 
           {match.description && (
@@ -142,36 +239,30 @@ function MatchDetailPage({ role, setRole, matches  }) {
 
         </div>
 
-        {/* Weather Strip */}
-        <div className="weather-strip">
-          <span className="weather-icon">{weatherIcon}</span>
-          <div>
-            <p className="weather-temp">{match.weather.temp}</p>
-            <p className="weather-condition">{match.weather.condition}</p>
-          </div>
-          <div className="weather-right">
-            <p>Match Day</p>
-            <p>{match.dateLabel}</p>
-          </div>
-        </div>
+        {/*  Weather API is connected in a later step */}
 
         {/* Player Slots */}
         <div className="slots-card">
           <h3>Players ({confirmedPlayers.length}/{match.maxPlayers})</h3>
           <div className="slots-grid">
 
-            {confirmedPlayers.map(function (player) {
+            {/* Real confirmed players from MongoDB */}
+            {confirmedPlayers.map(function (player, i) {
+              const name = player.user?.name || 'Player'
+              const initials = name.split(' ').map(function (n) { return n[0] }).join('').toUpperCase().slice(0, 2)
+              const isOrganizer = (player.user?._id || player.user) === (match.organizer?._id?.toString() || match.organizer?.toString())
               return (
-                <div key={player.id} className="slot-filled">
-                  <div className={player.isOrganizer ? 'slot-avatar organizer' : 'slot-avatar'}>
-                    {player.initials}
+                <div key={i} className="slot-filled">
+                  <div className={isOrganizer ? 'slot-avatar organizer' : 'slot-avatar'}>
+                    {initials}
                   </div>
-                  <p>{player.name.split(' ')[0]}</p>
-                  {player.isOrganizer && <small>Organizer</small>}
+                  <p>{name.split(' ')[0]}</p>
+                  {isOrganizer && <small>Organizer</small>}
                 </div>
               )
             })}
 
+            {/* Empty slots */}
             {Array.from({ length: emptySlots }).map(function (_, i) {
               return (
                 <div key={'empty-' + i} className="slot-empty">
@@ -225,27 +316,31 @@ function MatchDetailPage({ role, setRole, matches  }) {
       <div className="sticky-bottom">
         <div className="sticky-bottom-inner">
 
-          {joinStatus === 'none' && role === 'Player' && (
+          {/* Action message after join or leave */}
+          {actionMsg && (
+            <p style={{ textAlign: 'center', fontSize: 13, color: '#16A34A', fontWeight: 600, marginBottom: 8 }}>
+              {actionMsg}
+            </p>
+          )}
+
+          {/* Player has not joined and match is not full */}
+          {joinStatus === 'none' && !isFull && role === 'Player' && (
             <button
               className="btn-request-join"
-              onClick={function () { setJoinStatus('pending') }}
+              onClick={handleJoinRequest}
+              disabled={actionLoading}
+              style={{ opacity: actionLoading ? 0.6 : 1 }}
             >
-              Request to Join
+              {actionLoading ? 'Sending...' : 'Request to Join'}
             </button>
           )}
 
-          {joinStatus === 'none' && role === 'Organizer' && (
-            <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: 10, padding: 14, textAlign: 'center', color: '#15803D', fontWeight: 600, fontSize: 14 }}>
-              Switch to Manage Match to control this match
-            </div>
+          {/* Match is full */}
+          {joinStatus === 'none' && isFull && (
+            <div className="left-bar">This match is full</div>
           )}
 
-          {joinStatus === 'none' && role === 'Venue Host' && (
-            <div style={{ background: '#F3F4F6', borderRadius: 10, padding: 14, textAlign: 'center', color: '#6B7280', fontWeight: 600, fontSize: 14 }}>
-              Venue host view only
-            </div>
-          )}
-
+          {/* Request is pending */}
           {joinStatus === 'pending' && (
             <div className="pending-bar">
               <div className="pending-status">
@@ -261,9 +356,29 @@ function MatchDetailPage({ role, setRole, matches  }) {
             </div>
           )}
 
-          {joinStatus === 'left' && (
-            <div className="left-bar">
-              You have left this match
+          {/* Player is confirmed — show leave button */}
+          {joinStatus === 'confirmed' && (
+            <button
+              className="btn-request-join"
+              onClick={function () { setShowLeaveModal(true) }}
+              disabled={actionLoading}
+              style={{ background: '#DC2626', opacity: actionLoading ? 0.6 : 1 }}
+            >
+              {actionLoading ? 'Leaving...' : 'Leave Match'}
+            </button>
+          )}
+
+          {/* Organizer view */}
+          {role === 'Organizer' && (
+            <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: 10, padding: 14, textAlign: 'center', color: '#15803D', fontWeight: 600, fontSize: 14 }}>
+              Switch to Manage Match to control this match
+            </div>
+          )}
+
+          {/* Venue Host view */}
+          {role === 'Venue Host' && (
+            <div style={{ background: '#F3F4F6', borderRadius: 10, padding: 14, textAlign: 'center', color: '#6B7280', fontWeight: 600, fontSize: 14 }}>
+              Venue host view only
             </div>
           )}
 
@@ -274,23 +389,23 @@ function MatchDetailPage({ role, setRole, matches  }) {
       {showLeaveModal && (
         <div className="modal-overlay">
           <div className="modal-box">
-            <h3>Cancel your request?</h3>
-            <p>Your join request will be removed.</p>
+            <h3>{joinStatus === 'pending' ? 'Cancel your request?' : 'Leave this match?'}</h3>
+            <p>{joinStatus === 'pending' ? 'Your join request will be removed.' : 'Your spot will be freed up and the organizer will be notified.'}</p>
             <div className="modal-buttons">
               <button
                 className="btn-modal-cancel"
                 onClick={function () { setShowLeaveModal(false) }}
               >
-                Keep Request
+                {joinStatus === 'pending' ? 'Keep Request' : 'Stay'}
               </button>
               <button
                 className="btn-modal-confirm"
-                onClick={function () {
-                  setJoinStatus('left')
+                onClick={async function () {
                   setShowLeaveModal(false)
+                  await handleLeave()
                 }}
               >
-                Cancel Request
+                {joinStatus === 'pending' ? 'Cancel Request' : 'Leave Match'}
               </button>
             </div>
           </div>
