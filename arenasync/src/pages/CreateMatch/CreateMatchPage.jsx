@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import './CreateMatchPage.css'
 import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
 import IconLocation from '../../components/icons/IconLocation'
 
-function CreateMatchPage({ role, setRole, addMatch }) {
+function CreateMatchPage({ role, setRole }) {
 
   const navigate = useNavigate()
 
@@ -19,6 +20,8 @@ function CreateMatchPage({ role, setRole, addMatch }) {
   const [notes, setNotes] = useState('')
   const [errors, setErrors] = useState({})
   const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [createdMatch, setCreatedMatch] = useState(null)
 
   function validate() {
     const newErrors = {}
@@ -30,38 +33,55 @@ function CreateMatchPage({ role, setRole, addMatch }) {
     return newErrors
   }
 
-  function handleSubmit() {
-  const newErrors = validate()
-  if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors)
-    return
+  async function handleSubmit() {
+    const newErrors = validate()
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      return
+    }
+
+    setErrors({})
+    setLoading(true)
+
+    try {
+      // Get token from localStorage
+      const token = localStorage.getItem('token')
+
+      // Send match data to backend
+      const response = await axios.post(
+        'http://localhost:5000/api/matches',
+        {
+          title,
+          venue,
+          address: address || 'Toronto, ON',
+          date,
+          time,
+          skillLevel,
+          maxPlayers,
+          description: notes,
+          pin: { top: '50%', left: '50%' }
+        },
+        {
+          headers: {
+            Authorization: 'Bearer ' + token
+          }
+        }
+      )
+
+      // Match created successfully
+      setSubmitted(true)
+      setCreatedMatch(response.data.match)
+
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        setErrors({ server: error.response.data.message })
+      } else {
+        setErrors({ server: 'Something went wrong. Please try again.' })
+      }
+    } finally {
+      setLoading(false)
+    }
   }
-
-  // Build the new match object
-  const newMatch = {
-    id: Date.now(),
-    title: title,
-    venue: venue,
-    address: address || 'Toronto, ON',
-    date: date,
-    dateLabel: date,
-    time: time,
-    skillLevel: skillLevel,
-    maxPlayers: maxPlayers,
-    spotsLeft: maxPlayers,
-    organizer: 'You',
-    weather: { temp: '20°C', condition: 'Clear' },
-    tag: 'New',
-    description: notes || 'Match created by organizer.',
-    pin: { top: '40%', left: '45%' },
-  }
-
-  // Add to the matches list in App.jsx
-  addMatch(newMatch)
-
-  // Show success screen
-  setSubmitted(true)
-}
 
   function increaseMax() {
     if (maxPlayers < 22) setMaxPlayers(maxPlayers + 1)
@@ -71,30 +91,36 @@ function CreateMatchPage({ role, setRole, addMatch }) {
     if (maxPlayers > 2) setMaxPlayers(maxPlayers - 1)
   }
 
-  if (submitted) {
+  if (submitted && createdMatch) {
     return (
       <div className="create-success">
         <Navbar role={role} setRole={setRole} />
         <div className="create-success-box">
-          <div className="success-icon">🎉</div>
+          <div className="success-icon">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="12" fill="#16A34A" />
+              <polyline
+                points="6 12 10 16 18 8"
+                fill="none"
+                stroke="white"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
           <h2>Match Created!</h2>
-          <p><strong>{title}</strong> has been listed.</p>
-          <p>{venue} · {date} · {time}</p>
+          <p><strong>{createdMatch.title}</strong> has been listed.</p>
+          <p>{createdMatch.venue} · {date} · {time}</p>
           <p style={{ marginTop: 8, fontSize: 13, color: '#16A34A', fontWeight: 600 }}>
-            Skill Level: {skillLevel} · Max Players: {maxPlayers}
+            Skill Level: {createdMatch.skillLevel} · Max Players: {createdMatch.maxPlayers}
           </p>
           <div className="success-buttons">
             <button
               className="btn-success-home"
-              onClick={function() { navigate('/') }}
+              onClick={function () { navigate('/') }}
             >
               Back to Home
-            </button>
-            <button
-              className="btn-success-manage"
-              onClick={function() { navigate('/organizer-match/1') }}
-            >
-              Manage Match
             </button>
           </div>
         </div>
@@ -124,7 +150,7 @@ function CreateMatchPage({ role, setRole, addMatch }) {
               className={errors.title ? 'form-input error' : 'form-input'}
               placeholder="e.g. Friday Evening 5-a-side"
               value={title}
-              onChange={function(e) { setTitle(e.target.value) }}
+              onChange={function (e) { setTitle(e.target.value) }}
             />
             {errors.title && <p className="form-error">{errors.title}</p>}
           </div>
@@ -137,7 +163,7 @@ function CreateMatchPage({ role, setRole, addMatch }) {
               className={errors.venue ? 'form-input error' : 'form-input'}
               placeholder="e.g. Christie Pits Park"
               value={venue}
-              onChange={function(e) { setVenue(e.target.value) }}
+              onChange={function (e) { setVenue(e.target.value) }}
             />
             {errors.venue && <p className="form-error">{errors.venue}</p>}
           </div>
@@ -150,7 +176,7 @@ function CreateMatchPage({ role, setRole, addMatch }) {
               className="form-input"
               placeholder="Street address, Toronto"
               value={address}
-              onChange={function(e) { setAddress(e.target.value) }}
+              onChange={function (e) { setAddress(e.target.value) }}
             />
           </div>
 
@@ -162,7 +188,7 @@ function CreateMatchPage({ role, setRole, addMatch }) {
                 type="date"
                 className={errors.date ? 'form-input error' : 'form-input'}
                 value={date}
-                onChange={function(e) { setDate(e.target.value) }}
+                onChange={function (e) { setDate(e.target.value) }}
               />
               {errors.date && <p className="form-error">{errors.date}</p>}
             </div>
@@ -172,7 +198,7 @@ function CreateMatchPage({ role, setRole, addMatch }) {
                 type="time"
                 className={errors.time ? 'form-input error' : 'form-input'}
                 value={time}
-                onChange={function(e) { setTime(e.target.value) }}
+                onChange={function (e) { setTime(e.target.value) }}
               />
               {errors.time && <p className="form-error">{errors.time}</p>}
             </div>
@@ -192,12 +218,12 @@ function CreateMatchPage({ role, setRole, addMatch }) {
           <div className="form-group">
             <label className="form-label">Skill Level</label>
             <div className="skill-pills">
-              {['Beginner', 'Intermediate', 'Advanced'].map(function(level) {
+              {['Beginner', 'Intermediate', 'Advanced'].map(function (level) {
                 return (
                   <button
                     key={level}
                     className={skillLevel === level ? 'skill-pill active' : 'skill-pill'}
-                    onClick={function() { setSkillLevel(level) }}
+                    onClick={function () { setSkillLevel(level) }}
                   >
                     {level}
                   </button>
@@ -215,13 +241,31 @@ function CreateMatchPage({ role, setRole, addMatch }) {
               placeholder="Field type, what to bring, any rules..."
               rows={3}
               value={notes}
-              onChange={function(e) { setNotes(e.target.value) }}
+              onChange={function (e) { setNotes(e.target.value) }}
               style={{ resize: 'vertical' }}
             />
           </div>
 
-          <button className="btn-create-match" onClick={handleSubmit}>
-            Create Match →
+          {errors.server && (
+            <div style={{
+              background: '#FEE2E2',
+              border: '1px solid #FCA5A5',
+              borderRadius: 8,
+              padding: '10px 14px',
+              fontSize: 13,
+              color: '#DC2626',
+              marginBottom: 12
+            }}>
+              {errors.server}
+            </div>
+          )}
+
+          <button
+            className="btn-create-match"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? 'Creating Match...' : 'Create Match →'}
           </button>
 
         </div>
@@ -230,11 +274,11 @@ function CreateMatchPage({ role, setRole, addMatch }) {
         <div className="create-match-map-panel">
 
           <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0.25 }}>
-            {[0,1,2,3,4,5,6,7,8,9].map(function(i) {
-              return <line key={'h'+i} x1="0" y1={i*10+'%'} x2="100%" y2={i*10+'%'} stroke="#86efac" strokeWidth="1" />
+            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (i) {
+              return <line key={'h' + i} x1="0" y1={i * 10 + '%'} x2="100%" y2={i * 10 + '%'} stroke="#86efac" strokeWidth="1" />
             })}
-            {[0,1,2,3,4,5,6,7,8,9].map(function(i) {
-              return <line key={'v'+i} x1={i*10+'%'} y1="0" x2={i*10+'%'} y2="100%" stroke="#86efac" strokeWidth="1" />
+            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (i) {
+              return <line key={'v' + i} x1={i * 10 + '%'} y1="0" x2={i * 10 + '%'} y2="100%" stroke="#86efac" strokeWidth="1" />
             })}
           </svg>
 
