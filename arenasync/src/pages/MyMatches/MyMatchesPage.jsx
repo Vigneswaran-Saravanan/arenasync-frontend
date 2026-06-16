@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import './MyMatchesPage.css'
 import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
@@ -14,71 +15,64 @@ function MyMatchesPage({ role, setRole }) {
   // Active tab state
   const [activeTab, setActiveTab] = useState('upcoming')
 
-  // Dummy data for upcoming matches
-  const upcomingMatches = [
-    {
-      id: 1,
-      title: 'Sunday Morning Kickabout',
-      venue: 'Christie Pits Park',
-      dateLabel: 'Sun, Jun 7',
-      time: '10:00 AM',
-      skillLevel: 'Beginner',
-      status: 'confirmed',
-    },
-    {
-      id: 2,
-      title: 'Wednesday Evening 5-a-side',
-      venue: 'Lamport Stadium',
-      dateLabel: 'Wed, Jun 4',
-      time: '7:00 PM',
-      skillLevel: 'Intermediate',
-      status: 'confirmed',
-    },
-  ]
+  // Real matches from backend
+  const [matches, setMatches] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  // Dummy data for pending matches
-  // This is what players see after sending a join request
-  const [pendingMatches, setPendingMatches] = useState([
-    {
-      id: 3,
-      title: 'Saturday Competitive League',
-      venue: 'Greenwood Park',
-      dateLabel: 'Sat, Jun 6',
-      time: '4:00 PM',
-      skillLevel: 'Advanced',
-      status: 'pending',
-    },
-  ])
+  // Get logged in user id to find their player entry status in each match
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
+  const currentUserId = currentUser.id || currentUser._id
 
-  // Dummy data for completed matches
-  const completedMatches = [
-    {
-      id: 10,
-      title: 'Friday Futsal Night',
-      venue: 'Harbourfront Centre',
-      dateLabel: 'Fri, May 23',
-      time: '8:00 PM',
-      skillLevel: 'Intermediate',
-      status: 'completed',
-      attended: true,
-    },
-    {
-      id: 11,
-      title: 'Tuesday Warmup',
-      venue: 'Dufferin Grove Park',
-      dateLabel: 'Tue, May 20',
-      time: '5:30 PM',
-      skillLevel: 'Beginner',
-      status: 'completed',
-      attended: false,
-    },
-  ]
+  // Fetch matches the player has joined when page loads
+  useEffect(function () {
+    async function fetchMyMatches() {
+      try {
+        const token = localStorage.getItem('token')
+        const res = await axios.get('http://localhost:5000/api/matches/my-matches', {
+          headers: { Authorization: 'Bearer ' + token }
+        })
+        setMatches(res.data.matches)
+      } catch (err) {
+        setError('Could not load your matches.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchMyMatches()
+  }, [])
 
-  // Cancel a pending request
-  function handleCancelRequest(matchId) {
-    setPendingMatches(pendingMatches.filter(function(m) {
-      return m.id !== matchId
-    }))
+  // Format matches into the three tabs based on player status and match status
+  const upcomingMatches = matches.filter(function (m) {
+    const myEntry = m.players?.find(function (p) {
+      return (p.user?._id?.toString() || p.user?.toString()) === currentUserId?.toString()
+    })
+    return myEntry?.status === 'confirmed' && m.status === 'Upcoming'
+  })
+
+  const pendingMatches = matches.filter(function (m) {
+    const myEntry = m.players?.find(function (p) {
+      return (p.user?._id?.toString() || p.user?.toString()) === currentUserId?.toString()
+    })
+    return myEntry?.status === 'pending'
+  })
+
+  const completedMatches = matches.filter(function (m) {
+    return m.status === 'Completed'
+  })
+
+  // Cancel a pending request — calls backend leave API
+  async function handleCancelRequest(matchId) {
+    try {
+      const token = localStorage.getItem('token')
+      await axios.delete('http://localhost:5000/api/matches/' + matchId + '/leave', {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      // Remove it from local state immediately
+      setMatches(matches.filter(function (m) { return m._id !== matchId }))
+    } catch (err) {
+      alert(err.response?.data?.message || 'Could not cancel request.')
+    }
   }
 
   // Skill badge class
@@ -86,6 +80,21 @@ function MyMatchesPage({ role, setRole }) {
     if (level === 'Beginner') return 'skill-badge skill-beginner'
     if (level === 'Intermediate') return 'skill-badge skill-intermediate'
     return 'skill-badge skill-advanced'
+  }
+
+  // Format date helper
+  function formatDate(dateStr) {
+    if (!dateStr) return 'TBD'
+    return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+  }
+
+  if (loading) {
+    return (
+      <div className="my-matches-page">
+        <Navbar role={role} setRole={setRole} />
+        <div style={{ padding: 60, textAlign: 'center', color: '#6B7280' }}>Loading your matches...</div>
+      </div>
+    )
   }
 
   return (
@@ -98,11 +107,15 @@ function MyMatchesPage({ role, setRole }) {
         <h1 className="my-matches-heading">My Matches</h1>
         <p className="my-matches-subheading">Track all your upcoming and past games</p>
 
+        {error && (
+          <p style={{ color: '#DC2626', marginBottom: 16 }}>{error}</p>
+        )}
+
         {/* Tab bar */}
         <div className="tab-bar">
           <button
             className={activeTab === 'upcoming' ? 'tab-btn active' : 'tab-btn'}
-            onClick={function() { setActiveTab('upcoming') }}
+            onClick={function () { setActiveTab('upcoming') }}
           >
             Upcoming
             <span className="tab-count">{upcomingMatches.length}</span>
@@ -110,7 +123,7 @@ function MyMatchesPage({ role, setRole }) {
 
           <button
             className={activeTab === 'pending' ? 'tab-btn active' : 'tab-btn'}
-            onClick={function() { setActiveTab('pending') }}
+            onClick={function () { setActiveTab('pending') }}
           >
             Pending
             <span className="tab-count">{pendingMatches.length}</span>
@@ -118,7 +131,7 @@ function MyMatchesPage({ role, setRole }) {
 
           <button
             className={activeTab === 'completed' ? 'tab-btn active' : 'tab-btn'}
-            onClick={function() { setActiveTab('completed') }}
+            onClick={function () { setActiveTab('completed') }}
           >
             Completed
             <span className="tab-count">{completedMatches.length}</span>
@@ -133,12 +146,12 @@ function MyMatchesPage({ role, setRole }) {
                 message="No upcoming matches"
                 sub="Find a match and send a join request"
                 showBtn={true}
-                onBtnClick={function() { navigate('/') }}
+                onBtnClick={function () { navigate('/') }}
               />
             ) : (
-              upcomingMatches.map(function(match) {
+              upcomingMatches.map(function (match) {
                 return (
-                  <div key={match.id} className="match-row-card">
+                  <div key={match._id} className="match-row-card">
 
                     <div className="match-row-info">
                       <h3 className="match-row-title">{match.title}</h3>
@@ -146,7 +159,7 @@ function MyMatchesPage({ role, setRole }) {
                       <div className="match-row-meta">
                         <span>
                           <IconCalendar size={12} color="#9CA3AF" />
-                          {match.dateLabel}
+                          {formatDate(match.date)}
                         </span>
                         <span>
                           <IconClock size={12} color="#9CA3AF" />
@@ -159,10 +172,10 @@ function MyMatchesPage({ role, setRole }) {
                     </div>
 
                     <div className="match-row-actions">
-                      <span className="status-badge status-confirmed">✓ Confirmed</span>
+                      <span className="status-badge status-confirmed">Confirmed</span>
                       <button
                         className="btn-view-match"
-                        onClick={function() { navigate('/match/' + match.id) }}
+                        onClick={function () { navigate('/match/' + match._id) }}
                       >
                         View Match
                       </button>
@@ -183,12 +196,12 @@ function MyMatchesPage({ role, setRole }) {
                 message="No pending requests"
                 sub="Browse matches and send a join request"
                 showBtn={true}
-                onBtnClick={function() { navigate('/') }}
+                onBtnClick={function () { navigate('/') }}
               />
             ) : (
-              pendingMatches.map(function(match) {
+              pendingMatches.map(function (match) {
                 return (
-                  <div key={match.id} className="match-row-card">
+                  <div key={match._id} className="match-row-card">
 
                     <div className="match-row-info">
                       <h3 className="match-row-title">{match.title}</h3>
@@ -196,7 +209,7 @@ function MyMatchesPage({ role, setRole }) {
                       <div className="match-row-meta">
                         <span>
                           <IconCalendar size={12} color="#9CA3AF" />
-                          {match.dateLabel}
+                          {formatDate(match.date)}
                         </span>
                         <span>
                           <IconClock size={12} color="#9CA3AF" />
@@ -209,10 +222,10 @@ function MyMatchesPage({ role, setRole }) {
                     </div>
 
                     <div className="match-row-actions">
-                      <span className="status-badge status-pending">⏳ Pending Approval</span>
+                      <span className="status-badge status-pending">Pending Approval</span>
                       <button
                         className="btn-cancel-req"
-                        onClick={function() { handleCancelRequest(match.id) }}
+                        onClick={function () { handleCancelRequest(match._id) }}
                       >
                         Cancel Request
                       </button>
@@ -235,9 +248,14 @@ function MyMatchesPage({ role, setRole }) {
                 showBtn={false}
               />
             ) : (
-              completedMatches.map(function(match) {
+              completedMatches.map(function (match) {
+                const myEntry = match.players?.find(function (p) {
+                  return (p.user?._id?.toString() || p.user?.toString()) === currentUserId?.toString()
+                })
+                const attended = myEntry?.status === 'confirmed'
+
                 return (
-                  <div key={match.id} className="match-row-card">
+                  <div key={match._id} className="match-row-card">
 
                     <div className="match-row-info">
                       <h3 className="match-row-title">{match.title}</h3>
@@ -245,7 +263,7 @@ function MyMatchesPage({ role, setRole }) {
                       <div className="match-row-meta">
                         <span>
                           <IconCalendar size={12} color="#9CA3AF" />
-                          {match.dateLabel}
+                          {formatDate(match.date)}
                         </span>
                         <span>
                           <IconClock size={12} color="#9CA3AF" />
@@ -259,9 +277,9 @@ function MyMatchesPage({ role, setRole }) {
 
                     <div className="match-row-actions">
                       <span className="status-badge status-completed">Completed</span>
-                      {match.attended
-                        ? <span className="status-badge status-attended">✓ Attended</span>
-                        : <span className="status-badge status-absent">✗ Absent</span>
+                      {attended
+                        ? <span className="status-badge status-attended">Attended</span>
+                        : <span className="status-badge status-absent">Absent</span>
                       }
                     </div>
 
