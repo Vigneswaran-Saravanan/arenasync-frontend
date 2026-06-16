@@ -1,41 +1,25 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import './OrganizerMatchPage.css'
 import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
 import IconCalendar from '../../components/icons/IconCalendar'
 import IconClock from '../../components/icons/IconClock'
 import IconUser from '../../components/icons/IconUser'
-import players from '../../data/players'
 
 function OrganizerMatchPage({ role, setRole }) {
 
+  const { id } = useParams()
   const navigate = useNavigate()
 
-  // The match this organizer is managing
-  const match = {
-    id: 1,
-    title: 'Sunday Morning Kickabout',
-    venue: 'Christie Pits Park',
-    address: '750 Bloor St W, Toronto',
-    dateLabel: 'Sun, Jun 7',
-    time: '10:00 AM',
-    skillLevel: 'Beginner',
-    maxPlayers: 10,
-  }
+  // Real match data from backend
+  const [match, setMatch] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   // Which section tab is active
   const [activeSection, setActiveSection] = useState('requests')
-
-  // Join requests — starts as pending players
-  const [requests, setRequests] = useState(players)
-
-  // Confirmed players in the slot grid
-  const [confirmedPlayers, setConfirmedPlayers] = useState([
-    { id: 1, name: 'Carlos Mendez', initials: 'CM', isOrganizer: true },
-    { id: 2, name: 'Aiden Park', initials: 'AP' },
-    { id: 3, name: 'Marcus Cole', initials: 'MC' },
-  ])
 
   // Toast message
   const [toast, setToast] = useState(null)
@@ -46,63 +30,137 @@ function OrganizerMatchPage({ role, setRole }) {
   // Match cancelled state
   const [matchCancelled, setMatchCancelled] = useState(false)
 
+  // Action loading for accept/decline buttons
+  const [actionLoadingId, setActionLoadingId] = useState(null)
+
+  // Fetch match from backend when page loads
+  useEffect(function () {
+    fetchMatch()
+  }, [id])
+
+  async function fetchMatch() {
+    try {
+      const token = localStorage.getItem('token')
+      const res = await axios.get('http://localhost:5000/api/matches/' + id, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      setMatch(res.data.match)
+    } catch (err) {
+      setError('Match not found or you are not authorized to manage it.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   function showToast(msg) {
     setToast(msg)
-    setTimeout(function() { setToast(null) }, 3000)
+    setTimeout(function () { setToast(null) }, 3000)
   }
 
-  // Accept a join request
-  function handleAccept(playerId) {
-    const player = requests.find(function(r) { return r.id === playerId })
-    if (!player) return
-
-    // Move to confirmed list
-    setConfirmedPlayers([...confirmedPlayers, {
-      id: player.id,
-      name: player.name,
-      initials: player.initials,
-    }])
-
-    // Mark as accepted in requests
-    setRequests(requests.map(function(r) {
-      if (r.id === playerId) return { ...r, status: 'accepted' }
-      return r
-    }))
-
-    showToast(player.name + ' has been accepted!')
+  // Accept a join request — calls backend confirmPlayer API
+  async function handleAccept(playerId) {
+    setActionLoadingId(playerId)
+    try {
+      const token = localStorage.getItem('token')
+      await axios.put(
+        'http://localhost:5000/api/matches/' + id + '/players/' + playerId,
+        { action: 'confirmed' },
+        { headers: { Authorization: 'Bearer ' + token } }
+      )
+      showToast('Player has been accepted!')
+      await fetchMatch()
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Could not accept player.')
+    } finally {
+      setActionLoadingId(null)
+    }
   }
 
-  // Decline a join request
-  function handleDecline(playerId) {
-    const player = requests.find(function(r) { return r.id === playerId })
-    if (!player) return
-
-    setRequests(requests.map(function(r) {
-      if (r.id === playerId) return { ...r, status: 'declined' }
-      return r
-    }))
-
-    showToast(player.name + ' has been declined.')
+  // Decline a join request — calls backend confirmPlayer API
+  async function handleDecline(playerId) {
+    setActionLoadingId(playerId)
+    try {
+      const token = localStorage.getItem('token')
+      await axios.put(
+        'http://localhost:5000/api/matches/' + id + '/players/' + playerId,
+        { action: 'declined' },
+        { headers: { Authorization: 'Bearer ' + token } }
+      )
+      showToast('Player has been declined.')
+      await fetchMatch()
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Could not decline player.')
+    } finally {
+      setActionLoadingId(null)
+    }
   }
 
-  // Cancel the match
-  function handleCancelMatch() {
-    setMatchCancelled(true)
-    setShowCancelModal(false)
-    showToast('Match cancelled. All players have been notified.')
+  // Cancel the match — calls backend deleteMatch API
+  async function handleCancelMatch() {
+    try {
+      const token = localStorage.getItem('token')
+      await axios.delete('http://localhost:5000/api/matches/' + id, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      setMatchCancelled(true)
+      setShowCancelModal(false)
+      showToast('Match cancelled. All players have been notified.')
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Could not cancel match.')
+      setShowCancelModal(false)
+    }
   }
-
-  // Split requests into pending and processed
-  const pendingRequests = requests.filter(function(r) { return r.status === 'pending' })
-  const processedRequests = requests.filter(function(r) { return r.status !== 'pending' })
-
-  const emptySlots = match.maxPlayers - confirmedPlayers.length
 
   function getSkillClass(level) {
     if (level === 'Beginner') return 'skill-badge skill-beginner'
     if (level === 'Intermediate') return 'skill-badge skill-intermediate'
     return 'skill-badge skill-advanced'
   }
+
+  function getInitials(name) {
+    if (!name) return '?'
+    return name.split(' ').map(function (n) { return n[0] }).join('').toUpperCase().slice(0, 2)
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="organizer-match-page">
+        <Navbar role={role} setRole={setRole} />
+        <div style={{ padding: 60, textAlign: 'center', color: '#6B7280' }}>Loading match...</div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error || !match) {
+    return (
+      <div className="organizer-match-page">
+        <Navbar role={role} setRole={setRole} />
+        <div style={{ padding: 60, textAlign: 'center' }}>
+          <h2>{error || 'Match not found'}</h2>
+          <button
+            onClick={function () { navigate('/') }}
+            style={{ marginTop: 16, padding: '10px 24px', background: '#16A34A', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Split players into pending, confirmed, and processed (declined)
+  const pendingRequests = match.players?.filter(function (p) { return p.status === 'pending' }) || []
+  const confirmedPlayers = match.players?.filter(function (p) { return p.status === 'confirmed' }) || []
+  const declinedRequests = match.players?.filter(function (p) { return p.status === 'declined' }) || []
+
+  const emptySlots = match.maxPlayers - confirmedPlayers.length
+
+  // Format date
+  const formattedDate = match.date
+    ? new Date(match.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    : 'TBD'
 
   return (
     <div className="organizer-match-page">
@@ -112,8 +170,8 @@ function OrganizerMatchPage({ role, setRole }) {
       <div className="organizer-match-content">
 
         {/* Back button */}
-        <button className="back-btn" onClick={function() { navigate('/') }}>
-          ← Back to Matches
+        <button className="back-btn" onClick={function () { navigate('/') }}>
+          Back to Matches
         </button>
 
         {/* Cancelled banner */}
@@ -134,7 +192,7 @@ function OrganizerMatchPage({ role, setRole }) {
               <div className="org-meta-row">
                 <div className="org-chip">
                   <IconCalendar size={12} color="#6B7280" />
-                  {match.dateLabel}
+                  {formattedDate}
                 </div>
                 <div className="org-chip">
                   <IconClock size={12} color="#6B7280" />
@@ -145,7 +203,7 @@ function OrganizerMatchPage({ role, setRole }) {
                 </span>
                 <div className="org-chip">
                   <IconUser size={12} color="#6B7280" />
-                  {match.maxPlayers - confirmedPlayers.length} spots left
+                  {emptySlots} spots left
                 </div>
               </div>
             </div>
@@ -155,7 +213,7 @@ function OrganizerMatchPage({ role, setRole }) {
                 <button className="btn-edit-match">Edit Match</button>
                 <button
                   className="btn-cancel-match"
-                  onClick={function() { setShowCancelModal(true) }}
+                  onClick={function () { setShowCancelModal(true) }}
                 >
                   Cancel Match
                 </button>
@@ -168,13 +226,13 @@ function OrganizerMatchPage({ role, setRole }) {
         <div className="section-tabs">
           <button
             className={activeSection === 'requests' ? 'section-tab-btn active' : 'section-tab-btn'}
-            onClick={function() { setActiveSection('requests') }}
+            onClick={function () { setActiveSection('requests') }}
           >
             Join Requests ({pendingRequests.length})
           </button>
           <button
             className={activeSection === 'players' ? 'section-tab-btn active' : 'section-tab-btn'}
-            onClick={function() { setActiveSection('players') }}
+            onClick={function () { setActiveSection('players') }}
           >
             Player Grid
           </button>
@@ -191,43 +249,46 @@ function OrganizerMatchPage({ role, setRole }) {
               )}
             </div>
 
-            {/* Pending requests */}
-            {pendingRequests.length === 0 && processedRequests.length === 0 && (
+            {pendingRequests.length === 0 && declinedRequests.length === 0 && (
               <div className="no-requests">No join requests yet</div>
             )}
 
-            {pendingRequests.map(function(req) {
-              return (
-                <div key={req.id} className="request-row">
+            {pendingRequests.map(function (req) {
+              const playerId = req.user?._id || req.user
+              const name = req.user?.name || 'Player'
+              const skillLevel = req.user?.skillLevel || 'Beginner'
 
-                  <div className="request-avatar">{req.initials}</div>
+              return (
+                <div key={playerId} className="request-row">
+
+                  <div className="request-avatar">{getInitials(name)}</div>
 
                   <div className="request-info">
                     <div className="request-name">
-                      {req.name}
-                      <span className={getSkillClass(req.skillLevel)}>
-                        {req.skillLevel}
+                      {name}
+                      <span className={getSkillClass(skillLevel)}>
+                        {skillLevel}
                       </span>
                     </div>
                     <div className="request-meta">
-                      <span>Attendance: {req.attendanceRate}%</span>
-                      <span>{req.matchesPlayed} matches played</span>
-                      <span>{req.city}</span>
+                      <span>{req.user?.email || ''}</span>
                     </div>
                   </div>
 
                   <div className="request-actions">
                     <button
                       className="btn-accept"
-                      onClick={function() { handleAccept(req.id) }}
+                      onClick={function () { handleAccept(playerId) }}
+                      disabled={actionLoadingId === playerId}
                     >
-                      Accept
+                      {actionLoadingId === playerId ? '...' : 'Accept'}
                     </button>
                     <button
                       className="btn-decline"
-                      onClick={function() { handleDecline(req.id) }}
+                      onClick={function () { handleDecline(playerId) }}
+                      disabled={actionLoadingId === playerId}
                     >
-                      Decline
+                      {actionLoadingId === playerId ? '...' : 'Decline'}
                     </button>
                   </div>
 
@@ -235,28 +296,30 @@ function OrganizerMatchPage({ role, setRole }) {
               )
             })}
 
-            {/* Processed requests */}
-            {processedRequests.length > 0 && (
+            {/* Declined requests */}
+            {declinedRequests.length > 0 && (
               <div>
                 <p className="processed-label">Processed</p>
-                {processedRequests.map(function(req) {
+                {declinedRequests.map(function (req) {
+                  const playerId = req.user?._id || req.user
+                  const name = req.user?.name || 'Player'
                   return (
-                    <div key={req.id} className="processed-row">
+                    <div key={playerId} className="processed-row">
                       <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#F3F4F6', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13 }}>
-                        {req.initials}
+                        {getInitials(name)}
                       </div>
                       <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#374151' }}>
-                        {req.name}
+                        {name}
                       </span>
                       <span style={{
                         fontSize: 12,
                         fontWeight: 700,
                         padding: '3px 10px',
                         borderRadius: 12,
-                        background: req.status === 'accepted' ? '#F0FDF4' : '#FEE2E2',
-                        color: req.status === 'accepted' ? '#16A34A' : '#DC2626',
+                        background: '#FEE2E2',
+                        color: '#DC2626',
                       }}>
-                        {req.status === 'accepted' ? '✓ Accepted' : '✕ Declined'}
+                        Declined
                       </span>
                     </div>
                   )
@@ -276,19 +339,23 @@ function OrganizerMatchPage({ role, setRole }) {
 
             <div className="player-grid">
 
-              {confirmedPlayers.map(function(player) {
+              {confirmedPlayers.map(function (player) {
+                const name = player.user?.name || 'Player'
+                const playerId = player.user?._id || player.user
+                const isOrganizer = playerId === (match.organizer?._id?.toString() || match.organizer?.toString())
+
                 return (
-                  <div key={player.id} className="player-slot">
-                    <div className={player.isOrganizer ? 'player-avatar organizer' : 'player-avatar'}>
-                      {player.initials}
+                  <div key={playerId} className="player-slot">
+                    <div className={isOrganizer ? 'player-avatar organizer' : 'player-avatar'}>
+                      {getInitials(name)}
                     </div>
-                    <p>{player.name.split(' ')[0]}</p>
-                    {player.isOrganizer && <small>Organizer</small>}
+                    <p>{name.split(' ')[0]}</p>
+                    {isOrganizer && <small>Organizer</small>}
                   </div>
                 )
               })}
 
-              {Array.from({ length: emptySlots }).map(function(_, i) {
+              {Array.from({ length: emptySlots }).map(function (_, i) {
                 return (
                   <div key={'empty-' + i} className="empty-slot">
                     <div className="empty-slot-circle">+</div>
@@ -316,7 +383,7 @@ function OrganizerMatchPage({ role, setRole }) {
             <div className="modal-buttons">
               <button
                 className="btn-modal-keep"
-                onClick={function() { setShowCancelModal(false) }}
+                onClick={function () { setShowCancelModal(false) }}
               >
                 Keep Match
               </button>
