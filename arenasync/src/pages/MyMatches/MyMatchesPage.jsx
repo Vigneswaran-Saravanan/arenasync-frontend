@@ -120,191 +120,199 @@ function MyMatchesPage({ role, setRole }) {
       <div className="my-matches-content">
 
         <h1 className="my-matches-heading">My Matches</h1>
-        <p className="my-matches-subheading">Track all your upcoming and past games</p>
+        <p className="my-matches-subheading">
+          {role === 'Organizer' ? 'Manage the matches you have created' : 'Track all your upcoming and past games'}
+        </p>
 
         {error && (
           <p style={{ color: '#DC2626', marginBottom: 16 }}>{error}</p>
         )}
 
-        {/* Tab bar */}
-        <div className="tab-bar">
-          <button
-            className={activeTab === 'upcoming' ? 'tab-btn active' : 'tab-btn'}
-            onClick={function () { setActiveTab('upcoming') }}
-          >
-            Upcoming
-            <span className="tab-count">{upcomingMatches.length}</span>
-          </button>
+        {role !== 'Organizer' && (
+          <>
+            {/* Tab bar */}
+            <div className="tab-bar">
+              <button
+                className={activeTab === 'upcoming' ? 'tab-btn active' : 'tab-btn'}
+                onClick={function () { setActiveTab('upcoming') }}
+              >
+                Upcoming
+                <span className="tab-count">{upcomingMatches.length}</span>
+              </button>
 
-          <button
-            className={activeTab === 'pending' ? 'tab-btn active' : 'tab-btn'}
-            onClick={function () { setActiveTab('pending') }}
-          >
-            Pending
-            <span className="tab-count">{pendingMatches.length}</span>
-          </button>
+              <button
+                className={activeTab === 'pending' ? 'tab-btn active' : 'tab-btn'}
+                onClick={function () { setActiveTab('pending') }}
+              >
+                Pending
+                <span className="tab-count">{pendingMatches.length}</span>
+              </button>
 
-          <button
-            className={activeTab === 'completed' ? 'tab-btn active' : 'tab-btn'}
-            onClick={function () { setActiveTab('completed') }}
-          >
-            Completed
-            <span className="tab-count">{completedMatches.length}</span>
-          </button>
-        </div>
+              <button
+                className={activeTab === 'completed' ? 'tab-btn active' : 'tab-btn'}
+                onClick={function () { setActiveTab('completed') }}
+              >
+                Completed
+                <span className="tab-count">{completedMatches.length}</span>
+              </button>
+            </div>
 
-        {/* Upcoming Tab */}
-        {activeTab === 'upcoming' && (
-          <div>
-            {upcomingMatches.length === 0 ? (
-              <EmptyState
-                message="No upcoming matches"
-                sub="Find a match and send a join request"
-                showBtn={true}
-                onBtnClick={function () { navigate('/') }}
-              />
-            ) : (
-              upcomingMatches.map(function (match) {
-                return (
-                  <div key={match._id} className="match-row-card">
+            {/* Upcoming Tab */}
+            {activeTab === 'upcoming' && (
+              <div>
+                {upcomingMatches.length === 0 ? (
+                  <EmptyState
+                    message="No upcoming matches"
+                    sub="Find a match and send a join request"
+                    showBtn={true}
+                    onBtnClick={function () { navigate('/') }}
+                  />
+                ) : (
+                  upcomingMatches.map(function (match) {
+                    return (
+                      <div key={match._id} className="match-row-card">
 
-                    <div className="match-row-info">
-                      <h3 className="match-row-title">{match.title}</h3>
-                      <p className="match-row-venue">{match.venue}</p>
-                      <div className="match-row-meta">
-                        <span>
-                          <IconCalendar size={12} color="#9CA3AF" />
-                          {formatDate(match.date)}
-                        </span>
-                        <span>
-                          <IconClock size={12} color="#9CA3AF" />
-                          {match.time}
-                        </span>
-                        <span className={getSkillClass(match.skillLevel)}>
-                          {match.skillLevel}
-                        </span>
+                        <div className="match-row-info">
+                          <h3 className="match-row-title">{match.title}</h3>
+                          <p className="match-row-venue">{match.venue}</p>
+                          <div className="match-row-meta">
+                            <span>
+                              <IconCalendar size={12} color="#9CA3AF" />
+                              {formatDate(match.date)}
+                            </span>
+                            <span>
+                              <IconClock size={12} color="#9CA3AF" />
+                              {match.time}
+                            </span>
+                            <span className={getSkillClass(match.skillLevel)}>
+                              {match.skillLevel}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="match-row-actions">
+                          <span className="status-badge status-confirmed">Confirmed</span>
+                          <button
+                            className="btn-view-match"
+                            onClick={function () { navigate('/match/' + match._id) }}
+                          >
+                            View Match
+                          </button>
+                        </div>
+
                       </div>
-                    </div>
-
-                    <div className="match-row-actions">
-                      <span className="status-badge status-confirmed">Confirmed</span>
-                      <button
-                        className="btn-view-match"
-                        onClick={function () { navigate('/match/' + match._id) }}
-                      >
-                        View Match
-                      </button>
-                    </div>
-
-                  </div>
-                )
-              })
+                    )
+                  })
+                )}
+              </div>
             )}
-          </div>
-        )}
 
-        {/* Pending Tab */}
-        {activeTab === 'pending' && (
-          <div>
-            {pendingMatches.length === 0 ? (
-              <EmptyState
-                message="No pending requests"
-                sub="Browse matches and send a join request"
-                showBtn={true}
-                onBtnClick={function () { navigate('/') }}
-              />
-            ) : (
-              pendingMatches.map(function (match) {
-                return (
-                  <div key={match._id} className="match-row-card">
+            {/* Pending Tab */}
+            {activeTab === 'pending' && (
+              <div>
+                {pendingMatches.length === 0 ? (
+                  <EmptyState
+                    message="No pending requests"
+                    sub="Browse matches and send a join request"
+                    showBtn={true}
+                    onBtnClick={function () { navigate('/') }}
+                  />
+                ) : (
+                  pendingMatches.map(function (match) {
+                    return (
+                      <div key={match._id} className="match-row-card">
 
-                    <div className="match-row-info">
-                      <h3 className="match-row-title">{match.title}</h3>
-                      <p className="match-row-venue">{match.venue}</p>
-                      <div className="match-row-meta">
-                        <span>
-                          <IconCalendar size={12} color="#9CA3AF" />
-                          {formatDate(match.date)}
-                        </span>
-                        <span>
-                          <IconClock size={12} color="#9CA3AF" />
-                          {match.time}
-                        </span>
-                        <span className={getSkillClass(match.skillLevel)}>
-                          {match.skillLevel}
-                        </span>
+                        <div className="match-row-info">
+                          <h3 className="match-row-title">{match.title}</h3>
+                          <p className="match-row-venue">{match.venue}</p>
+                          <div className="match-row-meta">
+                            <span>
+                              <IconCalendar size={12} color="#9CA3AF" />
+                              {formatDate(match.date)}
+                            </span>
+                            <span>
+                              <IconClock size={12} color="#9CA3AF" />
+                              {match.time}
+                            </span>
+                            <span className={getSkillClass(match.skillLevel)}>
+                              {match.skillLevel}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="match-row-actions">
+                          <span className="status-badge status-pending">Pending Approval</span>
+                          <button
+                            className="btn-cancel-req"
+                            onClick={function () { handleCancelRequest(match._id) }}
+                          >
+                            Cancel Request
+                          </button>
+                        </div>
+
                       </div>
-                    </div>
-
-                    <div className="match-row-actions">
-                      <span className="status-badge status-pending">Pending Approval</span>
-                      <button
-                        className="btn-cancel-req"
-                        onClick={function () { handleCancelRequest(match._id) }}
-                      >
-                        Cancel Request
-                      </button>
-                    </div>
-
-                  </div>
-                )
-              })
+                    )
+                  })
+                )}
+              </div>
             )}
-          </div>
-        )}
 
-        {/* Completed Tab */}
-        {activeTab === 'completed' && (
-          <div>
-            {completedMatches.length === 0 ? (
-              <EmptyState
-                message="No completed matches"
-                sub="Your finished matches will appear here"
-                showBtn={false}
-              />
-            ) : (
-              completedMatches.map(function (match) {
-                const myEntry = match.players?.find(function (p) {
-                  return (p.user?._id?.toString() || p.user?.toString()) === currentUserId?.toString()
-                })
-                const attended = myEntry?.status === 'confirmed'
+            {/* Completed Tab */}
+            {activeTab === 'completed' && (
+              <div>
+                {completedMatches.length === 0 ? (
+                  <EmptyState
+                    message="No completed matches"
+                    sub="Your finished matches will appear here"
+                    showBtn={false}
+                  />
+                ) : (
+                  completedMatches.map(function (match) {
+                    const myEntry = match.players?.find(function (p) {
+                      return (p.user?._id?.toString() || p.user?.toString()) === currentUserId?.toString()
+                    })
+                    const attended = myEntry?.status === 'confirmed'
 
-                return (
-                  <div key={match._id} className="match-row-card">
+                    return (
+                      <div key={match._id} className="match-row-card">
 
-                    <div className="match-row-info">
-                      <h3 className="match-row-title">{match.title}</h3>
-                      <p className="match-row-venue">{match.venue}</p>
-                      <div className="match-row-meta">
-                        <span>
-                          <IconCalendar size={12} color="#9CA3AF" />
-                          {formatDate(match.date)}
-                        </span>
-                        <span>
-                          <IconClock size={12} color="#9CA3AF" />
-                          {match.time}
-                        </span>
-                        <span className={getSkillClass(match.skillLevel)}>
-                          {match.skillLevel}
-                        </span>
+                        <div className="match-row-info">
+                          <h3 className="match-row-title">{match.title}</h3>
+                          <p className="match-row-venue">{match.venue}</p>
+                          <div className="match-row-meta">
+                            <span>
+                              <IconCalendar size={12} color="#9CA3AF" />
+                              {formatDate(match.date)}
+                            </span>
+                            <span>
+                              <IconClock size={12} color="#9CA3AF" />
+                              {match.time}
+                            </span>
+                            <span className={getSkillClass(match.skillLevel)}>
+                              {match.skillLevel}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="match-row-actions">
+                          <span className="status-badge status-completed">Completed</span>
+                          {attended
+                            ? <span className="status-badge status-attended">Attended</span>
+                            : <span className="status-badge status-absent">Absent</span>
+                          }
+                        </div>
+
                       </div>
-                    </div>
-
-                    <div className="match-row-actions">
-                      <span className="status-badge status-completed">Completed</span>
-                      {attended
-                        ? <span className="status-badge status-attended">Attended</span>
-                        : <span className="status-badge status-absent">Absent</span>
-                      }
-                    </div>
-
-                  </div>
-                )
-              })
+                    )
+                  })
+                )}
+              </div>
+  
             )}
-          </div>
+            </>
         )}
-
+  
+        
         {/* Matches I Created — only shown for Organizers */}
         {role === 'Organizer' && myCreatedMatches.length > 0 && (
           <div style={{ marginTop: 32 }}>
