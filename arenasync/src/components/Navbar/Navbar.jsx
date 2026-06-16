@@ -136,7 +136,9 @@ function Navbar({ role, setRole }) {
         <div className="navbar-inner">
 
           {/* Logo */}
-          <div className="navbar-logo" onClick={function () { navigate('/') }}>
+          <div className="navbar-logo" onClick={function () {
+            navigate(role === 'Organizer' ? '/my-matches' : '/')
+          }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="42" height="50" viewBox="0 0 64 73">
               <defs>
                 <clipPath id="field">
@@ -166,13 +168,15 @@ function Navbar({ role, setRole }) {
           {/* Navigation links */}
           <div className="navbar-links">
 
-            <button
-              className={isActive('/') ? 'nav-link-btn active' : 'nav-link-btn'}
-              onClick={function () { navigate('/') }}
-            >
-              <IconHome size={15} color={isActive('/') ? '#16A34A' : '#6B7280'} />
-              Home
-            </button>
+            {role !== 'Organizer' && (
+              <button
+                className={isActive('/') ? 'nav-link-btn active' : 'nav-link-btn'}
+                onClick={function () { navigate('/') }}
+              >
+                <IconHome size={15} color={isActive('/') ? '#16A34A' : '#6B7280'} />
+                Home
+              </button>
+            )}
 
             {(role === 'Player' || role === 'Organizer') && (
               <button
