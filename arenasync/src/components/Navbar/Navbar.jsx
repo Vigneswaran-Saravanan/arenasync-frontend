@@ -128,7 +128,7 @@ function Navbar({ role, setRole }) {
   }
 
   const notifs = notifsByRole[role] || []
-  const unreadCount = notifs.filter(function(n) { return !n.read }).length
+  const unreadCount = notifs.filter(function (n) { return !n.read }).length
 
   return (
     <>
@@ -136,7 +136,7 @@ function Navbar({ role, setRole }) {
         <div className="navbar-inner">
 
           {/* Logo */}
-          <div className="navbar-logo" onClick={function() { navigate('/') }}>
+          <div className="navbar-logo" onClick={function () { navigate('/') }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="42" height="50" viewBox="0 0 64 73">
               <defs>
                 <clipPath id="field">
@@ -168,16 +168,16 @@ function Navbar({ role, setRole }) {
 
             <button
               className={isActive('/') ? 'nav-link-btn active' : 'nav-link-btn'}
-              onClick={function() { navigate('/') }}
+              onClick={function () { navigate('/') }}
             >
               <IconHome size={15} color={isActive('/') ? '#16A34A' : '#6B7280'} />
               Home
             </button>
 
-            {role === 'Player' && (
+            {(role === 'Player' || role === 'Organizer') && (
               <button
                 className={isActive('/my-matches') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function() { navigate('/my-matches') }}
+                onClick={function () { navigate('/my-matches') }}
               >
                 <IconCalendar size={15} color={isActive('/my-matches') ? '#16A34A' : '#6B7280'} />
                 My Matches
@@ -186,18 +186,8 @@ function Navbar({ role, setRole }) {
 
             {role === 'Organizer' && (
               <button
-                className={isActive('/organizer-match/1') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function() { navigate('/organizer-match/1') }}
-              >
-                <IconCalendar size={15} color={isActive('/organizer-match/1') ? '#16A34A' : '#6B7280'} />
-                Manage Match
-              </button>
-            )}
-
-            {role === 'Organizer' && (
-              <button
                 className={isActive('/create-match') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function() { navigate('/create-match') }}
+                onClick={function () { navigate('/create-match') }}
               >
                 <IconPlus size={15} color={isActive('/create-match') ? '#16A34A' : '#6B7280'} />
                 Create Match
@@ -207,7 +197,7 @@ function Navbar({ role, setRole }) {
             {role === 'Venue Host' && (
               <button
                 className={isActive('/venue-dashboard') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function() { navigate('/venue-dashboard') }}
+                onClick={function () { navigate('/venue-dashboard') }}
               >
                 <IconBuilding size={15} color={isActive('/venue-dashboard') ? '#16A34A' : '#6B7280'} />
                 My Venue
@@ -227,7 +217,7 @@ function Navbar({ role, setRole }) {
             {/* Bell */}
             <div
               className="navbar-bell"
-              onClick={function() {
+              onClick={function () {
                 setShowNotif(!showNotif)
                 setShowUserMenu(false)
               }}
@@ -245,7 +235,7 @@ function Navbar({ role, setRole }) {
             <div style={{ position: 'relative' }}>
               <div
                 className="navbar-avatar"
-                onClick={function() {
+                onClick={function () {
                   setShowUserMenu(!showUserMenu)
                   setShowNotif(false)
                 }}
@@ -285,16 +275,16 @@ function Navbar({ role, setRole }) {
       {/* Notification panel */}
       {showNotif && (
         <>
-          <div className="notif-overlay" onClick={function() { setShowNotif(false) }} />
+          <div className="notif-overlay" onClick={function () { setShowNotif(false) }} />
           <div className="notif-panel">
             <div className="notif-header">
               <span>Notifications</span>
-              <button className="notif-mark-read" onClick={function() { setShowNotif(false) }}>
+              <button className="notif-mark-read" onClick={function () { setShowNotif(false) }}>
                 Mark all read
               </button>
             </div>
             <div className="notif-list">
-              {notifs.map(function(n) {
+              {notifs.map(function (n) {
                 return (
                   <div key={n.id} className={n.read ? 'notif-item' : 'notif-item unread'}>
                     <p className="notif-item-title">{n.title}</p>
@@ -304,7 +294,7 @@ function Navbar({ role, setRole }) {
                     {n.isRequest && (
                       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                         <button
-                          onClick={function() {
+                          onClick={function () {
                             alert('Request accepted! Player has been notified.')
                             setShowNotif(false)
                           }}
@@ -313,7 +303,7 @@ function Navbar({ role, setRole }) {
                           Accept
                         </button>
                         <button
-                          onClick={function() {
+                          onClick={function () {
                             alert('Request declined. Player has been notified.')
                             setShowNotif(false)
                           }}
@@ -335,7 +325,7 @@ function Navbar({ role, setRole }) {
       {(showNotif || showUserMenu) && (
         <div
           style={{ position: 'fixed', inset: 0, zIndex: 99 }}
-          onClick={function() {
+          onClick={function () {
             setShowNotif(false)
             setShowUserMenu(false)
           }}
