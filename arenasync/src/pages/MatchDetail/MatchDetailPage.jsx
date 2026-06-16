@@ -40,7 +40,7 @@ function MatchDetailPage({ role, setRole }) {
 
   // Get logged in user from localStorage
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
-  const currentUserId = currentUser._id
+  const currentUserId = currentUser.id || currentUser._id
 
   // Fetch match from backend when page loads
   useEffect(function () {
@@ -54,8 +54,9 @@ function MatchDetailPage({ role, setRole }) {
 
         // Check if current user already joined this match
         const myEntry = res.data.match.players?.find(function (p) {
-          return (p.user?._id || p.user) === currentUserId
+          return (p.user?._id?.toString() || p.user?.toString()) === currentUserId?.toString()
         })
+
         if (myEntry?.status === 'confirmed') setJoinStatus('confirmed')
         else if (myEntry?.status === 'pending') setJoinStatus('pending')
         else setJoinStatus('none')
@@ -76,6 +77,16 @@ function MatchDetailPage({ role, setRole }) {
       headers: { Authorization: 'Bearer ' + token }
     })
     setMatch(res.data.match)
+
+    // Re-check join status after refetch
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    const myEntry = res.data.match.players?.find(function (p) {
+      return (p.user?._id?.toString() || p.user?.toString()) === (user.id || user._id)?.toString()
+    })
+    if (myEntry?.status === 'confirmed') setJoinStatus('confirmed')
+    else if (myEntry?.status === 'pending') setJoinStatus('pending')
+    else setJoinStatus('none')
+
   }
 
   // Loading state
