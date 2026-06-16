@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import './LoginPage.css'
 import { loginUser } from '../../services/api'
 
-function LoginPage({setRole}) {
+function LoginPage({ setRole }) {
 
     const navigate = useNavigate()
 
@@ -51,8 +51,8 @@ function LoginPage({setRole}) {
             localStorage.setItem('user', JSON.stringify(response.data.user))
             setRole(response.data.user.role)
 
-            // Redirect to home page
-            navigate('/')
+            // Redirect based on role
+            navigate(response.data.user.role === 'Organizer' ? '/my-matches' : '/')
 
         } catch (error) {
             if (error.response && error.response.data.message) {
