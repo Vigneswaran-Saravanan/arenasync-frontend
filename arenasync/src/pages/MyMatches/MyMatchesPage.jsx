@@ -20,6 +20,9 @@ function MyMatchesPage({ role, setRole }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  // Matches this user created as organizer
+  const [myCreatedMatches, setMyCreatedMatches] = useState([])
+
   // Get logged in user id to find their player entry status in each match
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
   const currentUserId = currentUser.id || currentUser._id
@@ -29,10 +32,22 @@ function MyMatchesPage({ role, setRole }) {
     async function fetchMyMatches() {
       try {
         const token = localStorage.getItem('token')
+
+        // Matches the player has joined
         const res = await axios.get('http://localhost:5000/api/matches/my-matches', {
           headers: { Authorization: 'Bearer ' + token }
         })
         setMatches(res.data.matches)
+
+        // Matches this user created as organizer
+        if (role === 'Organizer') {
+          const allRes = await axios.get('http://localhost:5000/api/matches')
+          const created = allRes.data.matches.filter(function (m) {
+            return (m.organizer?._id || m.organizer) === currentUserId
+          })
+          setMyCreatedMatches(created)
+        }
+
       } catch (err) {
         setError('Could not load your matches.')
       } finally {
@@ -287,6 +302,46 @@ function MyMatchesPage({ role, setRole }) {
                 )
               })
             )}
+          </div>
+        )}
+
+        {/* Matches I Created — only shown for Organizers */}
+        {role === 'Organizer' && myCreatedMatches.length > 0 && (
+          <div style={{ marginTop: 32 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 16 }}>
+              Matches I Created
+            </h2>
+            {myCreatedMatches.map(function (match) {
+              return (
+                <div key={match._id} className="match-row-card">
+                  <div className="match-row-info">
+                    <h3 className="match-row-title">{match.title}</h3>
+                    <p className="match-row-venue">{match.venue}</p>
+                    <div className="match-row-meta">
+                      <span>
+                        <IconCalendar size={12} color="#9CA3AF" />
+                        {formatDate(match.date)}
+                      </span>
+                      <span>
+                        <IconClock size={12} color="#9CA3AF" />
+                        {match.time}
+                      </span>
+                      <span className={getSkillClass(match.skillLevel)}>
+                        {match.skillLevel}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="match-row-actions">
+                    <button
+                      className="btn-view-match"
+                      onClick={function () { navigate('/organizer-match/' + match._id) }}
+                    >
+                      Manage
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )}
 
