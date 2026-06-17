@@ -210,7 +210,12 @@ function OrganizerMatchPage({ role, setRole }) {
 
             {!matchCancelled && (
               <div className="org-header-actions">
-                <button className="btn-edit-match">Edit Match</button>
+                <button
+                  className="btn-edit-match"
+                  onClick={function () { navigate('/edit-match/' + id) }}
+                >
+                  Edit Match
+                </button>
                 <button
                   className="btn-cancel-match"
                   onClick={function () { setShowCancelModal(true) }}
