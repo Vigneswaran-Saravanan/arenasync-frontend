@@ -1,0 +1,242 @@
+.create-match-page {
+  min-height: 100vh;
+  background-color: var(--page-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.create-match-layout {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 64px);
+}
+
+/* Left form panel */
+.create-match-form-panel {
+  width: 50%;
+  overflow-y: auto;
+  padding: 40px;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+}
+
+.create-match-heading {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 6px 0;
+}
+
+.create-match-subheading {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0 0 28px 0;
+}
+
+/* Form fields */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--body);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--body);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-input:focus {
+  border-color: var(--green);
+}
+
+.form-input.error {
+  border-color: #DC2626;
+}
+
+.form-error {
+  font-size: 12px;
+  color: #DC2626;
+  margin-top: 4px;
+}
+
+/* Two column row for date and time */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Number stepper for max players */
+.number-stepper {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  overflow: hidden;
+  width: 140px;
+}
+
+.stepper-btn {
+  width: 40px;
+  height: 42px;
+  background: var(--page-bg);
+  border: none;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--body);
+  transition: background 0.15s;
+}
+
+.stepper-btn:hover {
+  background: var(--border);
+}
+
+.stepper-value {
+  flex: 1;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+/* Skill level pills */
+.skill-pills {
+  display: flex;
+  gap: 10px;
+}
+
+.skill-pill {
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-light);
+  background: var(--white);
+  color: var(--body);
+  transition: all 0.15s;
+}
+
+.skill-pill.active {
+  background: var(--green);
+  color: var(--white);
+  border-color: var(--green);
+}
+
+/* Submit button */
+.btn-create-match {
+  width: 100%;
+  padding: 14px;
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.15s;
+}
+
+.btn-create-match:hover {
+  background: var(--green-dark);
+}
+
+/* Right map panel */
+.create-match-map-panel {
+  width: 50%;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #e8f5e9, #f0f9f0, #e8f5e9);
+}
+
+.map-hint {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Success screen after submitting */
+.create-success {
+  min-height: 100vh;
+  background: var(--page-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.create-success-box {
+  max-width: 480px;
+  margin: 80px auto;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 48px;
+  text-align: center;
+}
+
+.success-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+}
+
+.create-success-box h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+
+.create-success-box p {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.success-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.btn-success-home {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--green);
+  color: var(--green);
+  background: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-success-manage {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: var(--green);
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
