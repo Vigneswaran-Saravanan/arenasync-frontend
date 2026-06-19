@@ -128,3 +128,62 @@
   color: #DC2626;
   margin-bottom: 16px;
 }
+
+/* Success screen after creating a venue */
+.create-venue-success {
+  min-height: 100vh;
+  background: var(--page-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.create-venue-success-box {
+  max-width: 480px;
+  margin: 80px auto;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 48px;
+  text-align: center;
+}
+
+.venue-success-icon {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.create-venue-success-box h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+
+.create-venue-success-box p {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.venue-success-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.btn-venue-success-back {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--green);
+  color: var(--green);
+  background: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-venue-success-back:hover {
+  background: var(--green-light);
+}
