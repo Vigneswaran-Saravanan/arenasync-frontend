@@ -9,6 +9,7 @@ import CreateMatchPage from './pages/CreateMatch/CreateMatchPage'
 import OrganizerMatchPage from './pages/OrganizerMatch/OrganizerMatchPage'
 import VenueDashboardPage from './pages/VenueDashboard/VenueDashboardPage'
 import EditMatchPage from './pages/EditMatch/EditMatchPage'
+import MyVenuesPage from './pages/MyVenues/MyVenuesPage'
 
 
 
@@ -36,6 +37,7 @@ function App() {
         <Route path="/organizer-match/:id" element={<OrganizerMatchPage role={role} setRole={setRole} />} />
         <Route path="/edit-match/:id" element={<EditMatchPage role={role} setRole={setRole} />} />
         <Route path="/venue-dashboard" element={<VenueDashboardPage role={role} setRole={setRole} />} />
+        <Route path="/my-venues" element={<MyVenuesPage role={role} setRole={setRole} />} />
       </Routes>
     </BrowserRouter>
   )
