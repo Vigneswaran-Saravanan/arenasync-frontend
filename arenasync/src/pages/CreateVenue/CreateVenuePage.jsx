@@ -1,0 +1,197 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import './CreateVenuePage.css'
+import Navbar from '../../components/Navbar/Navbar'
+import Footer from '../../components/Footer/Footer'
+
+function CreateVenuePage({ role, setRole }) {
+
+  const navigate = useNavigate()
+
+  const allFacilities = [
+    'Floodlights',
+    'Parking',
+    'Changing Rooms',
+    'Water Fountains',
+    'First Aid',
+    'Spectator Seating',
+  ]
+
+  const [name, setName] = useState('')
+  const [address, setAddress] = useState('')
+  const [fieldType, setFieldType] = useState('')
+  const [capacity, setCapacity] = useState(14)
+  const [photoUrl, setPhotoUrl] = useState('')
+  const [facilities, setFacilities] = useState([])
+  const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
+
+  function toggleFacility(facility) {
+    if (facilities.includes(facility)) {
+      setFacilities(facilities.filter(function (f) { return f !== facility }))
+    } else {
+      setFacilities([...facilities, facility])
+    }
+  }
+
+  function validate() {
+    const newErrors = {}
+    if (!name.trim()) newErrors.name = 'Venue name is required'
+    if (!address.trim()) newErrors.address = 'Address is required'
+    if (!capacity || capacity < 2) newErrors.capacity = 'Capacity must be at least 2'
+    return newErrors
+  }
+
+  async function handleSubmit() {
+    const newErrors = validate()
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      return
+    }
+
+    setErrors({})
+    setLoading(true)
+
+    try {
+      const token = localStorage.getItem('token')
+
+      const response = await axios.post(
+        'http://localhost:5000/api/venues',
+        {
+          name,
+          address,
+          fieldType,
+          capacity,
+          photoUrl,
+          facilities
+        },
+        {
+          headers: { Authorization: 'Bearer ' + token }
+        }
+      )
+
+      // Go to the newly created venue's detail page
+      navigate('/venue/' + response.data.venue._id)
+
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        setErrors({ server: error.response.data.message })
+      } else {
+        setErrors({ server: 'Something went wrong. Please try again.' })
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="create-venue-page">
+
+      <Navbar role={role} setRole={setRole} />
+
+      <div className="create-venue-content">
+
+        <h1 className="create-venue-heading">Create a Venue</h1>
+        <p className="create-venue-subheading">List your field for organizers to find</p>
+
+        {errors.server && (
+          <div className="venue-server-error">{errors.server}</div>
+        )}
+
+        <div className="venue-form-group">
+          <label className="venue-form-label">Venue Name</label>
+          <input
+            type="text"
+            className={errors.name ? 'venue-form-input error' : 'venue-form-input'}
+            placeholder="e.g. Downtown Soccer Field"
+            value={name}
+            onChange={function (e) { setName(e.target.value) }}
+          />
+          {errors.name && <p className="venue-form-error">{errors.name}</p>}
+        </div>
+
+        <div className="venue-form-group">
+          <label className="venue-form-label">Address</label>
+          <input
+            type="text"
+            className={errors.address ? 'venue-form-input error' : 'venue-form-input'}
+            placeholder="Street address, city, province"
+            value={address}
+            onChange={function (e) { setAddress(e.target.value) }}
+          />
+          {errors.address && <p className="venue-form-error">{errors.address}</p>}
+        </div>
+
+        <div className="venue-form-row">
+          <div className="venue-form-group">
+            <label className="venue-form-label">Field Type</label>
+            <input
+              type="text"
+              className="venue-form-input"
+              placeholder="e.g. Artificial Turf"
+              value={fieldType}
+              onChange={function (e) { setFieldType(e.target.value) }}
+            />
+          </div>
+
+          <div className="venue-form-group">
+            <label className="venue-form-label">Capacity (players)</label>
+            <input
+              type="number"
+              className={errors.capacity ? 'venue-form-input error' : 'venue-form-input'}
+              min="2"
+              max="30"
+              value={capacity}
+              onChange={function (e) { setCapacity(e.target.value) }}
+            />
+            {errors.capacity && <p className="venue-form-error">{errors.capacity}</p>}
+          </div>
+        </div>
+
+        <div className="venue-form-group">
+          <label className="venue-form-label">Photo URL (optional)</label>
+          <input
+            type="text"
+            className="venue-form-input"
+            placeholder="https://..."
+            value={photoUrl}
+            onChange={function (e) { setPhotoUrl(e.target.value) }}
+          />
+        </div>
+
+        <div className="venue-form-group">
+          <label className="venue-form-label">Facilities</label>
+          <div className="venue-facilities-grid">
+            {allFacilities.map(function (facility) {
+              return (
+                <label key={facility} className="venue-facility-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={facilities.includes(facility)}
+                    onChange={function () { toggleFacility(facility) }}
+                  />
+                  {facility}
+                </label>
+              )
+            })}
+          </div>
+        </div>
+
+        <button
+          className="btn-submit-venue"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? 'Creating Venue...' : 'Create Venue'}
+        </button>
+
+      </div>
+
+      <Footer />
+
+    </div>
+  )
+}
+
+export default CreateVenuePage

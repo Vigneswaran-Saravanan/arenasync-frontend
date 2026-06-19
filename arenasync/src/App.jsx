@@ -38,7 +38,7 @@ function App() {
         <Route path="/edit-match/:id" element={<EditMatchPage role={role} setRole={setRole} />} />
         <Route path="/venue-dashboard" element={<VenueDashboardPage role={role} setRole={setRole} />} />
         <Route path="/my-venues" element={<MyVenuesPage role={role} setRole={setRole} />} />
-      </Routes>
+      </Routes> 
     </BrowserRouter>
   )
 }

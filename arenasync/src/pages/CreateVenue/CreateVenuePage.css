@@ -1,0 +1,130 @@
+.create-venue-page {
+  min-height: 100vh;
+  background-color: var(--page-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.create-venue-content {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  width: 100%;
+  flex: 1;
+}
+
+.create-venue-heading {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 6px 0;
+}
+
+.create-venue-subheading {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0 0 28px 0;
+}
+
+.venue-form-group {
+  margin-bottom: 20px;
+}
+
+.venue-form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--body);
+  margin-bottom: 6px;
+}
+
+.venue-form-input {
+  width: 100%;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--body);
+  outline: none;
+  background: white;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.venue-form-input:focus {
+  border-color: var(--green);
+}
+
+.venue-form-input.error {
+  border-color: #FCA5A5;
+}
+
+.venue-form-error {
+  color: #DC2626;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.venue-form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.venue-form-row .venue-form-group {
+  flex: 1;
+}
+
+.venue-facilities-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.venue-facility-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--body);
+}
+
+.venue-facility-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--green);
+  cursor: pointer;
+}
+
+.btn-submit-venue {
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.btn-submit-venue:hover {
+  background: var(--green-dark);
+}
+
+.btn-submit-venue:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.venue-server-error {
+  background: #FEE2E2;
+  border: 1px solid #FCA5A5;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #DC2626;
+  margin-bottom: 16px;
+}
