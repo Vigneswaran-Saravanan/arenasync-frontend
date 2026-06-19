@@ -14,6 +14,7 @@ function VenueDetailPage({ role, setRole }) {
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   useEffect(function () {
     fetchVenue()
@@ -32,9 +33,6 @@ function VenueDetailPage({ role, setRole }) {
   }
 
   async function handleDelete() {
-    const confirmed = window.confirm('Are you sure you want to delete this venue listing?')
-    if (!confirmed) return
-
     try {
       const token = localStorage.getItem('token')
       await axios.delete('http://localhost:5000/api/venues/' + id, {
@@ -42,6 +40,7 @@ function VenueDetailPage({ role, setRole }) {
       })
       navigate('/my-venues')
     } catch (err) {
+      setShowDeleteModal(false)
       alert(err.response?.data?.message || 'Could not delete venue.')
     }
   }
@@ -118,7 +117,7 @@ function VenueDetailPage({ role, setRole }) {
               </button>
               <button
                 className="btn-delete-venue-detail"
-                onClick={handleDelete}
+                onClick={function () { setShowDeleteModal(true) }}
               >
                 Delete
               </button>
@@ -164,6 +163,32 @@ function VenueDetailPage({ role, setRole }) {
       </div>
 
       <Footer />
+
+      {/* Delete confirmation modal */}
+      {showDeleteModal && (
+        <div className="venue-modal-overlay">
+          <div className="venue-modal-box">
+            <h3>Delete this venue?</h3>
+            <p>
+              This will permanently remove "{venue.name}" from your listings. This cannot be undone.
+            </p>
+            <div className="venue-modal-buttons">
+              <button
+                className="btn-venue-modal-keep"
+                onClick={function () { setShowDeleteModal(false) }}
+              >
+                Keep Venue
+              </button>
+              <button
+                className="btn-venue-modal-delete"
+                onClick={handleDelete}
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )
