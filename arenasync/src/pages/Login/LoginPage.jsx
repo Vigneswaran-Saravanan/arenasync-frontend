@@ -52,7 +52,11 @@ function LoginPage({ setRole }) {
             setRole(response.data.user.role)
 
             // Redirect based on role
-            navigate(response.data.user.role === 'Organizer' ? '/my-matches' : '/')
+            navigate(
+                response.data.user.role === 'Organizer' ? '/my-matches' :
+                response.data.user.role === 'Venue Host' ? '/my-venues' :
+                '/'
+            )
 
         } catch (error) {
             if (error.response && error.response.data.message) {
