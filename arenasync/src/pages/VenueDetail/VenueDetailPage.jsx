@@ -1,0 +1,172 @@
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import './VenueDetailPage.css'
+import Navbar from '../../components/Navbar/Navbar'
+import Footer from '../../components/Footer/Footer'
+
+function VenueDetailPage({ role, setRole }) {
+
+  const { id } = useParams()
+  const navigate = useNavigate()
+
+  const [venue, setVenue] = useState(null)
+  const [bookings, setBookings] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(function () {
+    fetchVenue()
+  }, [id])
+
+  async function fetchVenue() {
+    try {
+      const res = await axios.get('http://localhost:5000/api/venues/' + id)
+      setVenue(res.data.venue)
+      setBookings(res.data.bookings || [])
+    } catch (err) {
+      setError('Venue not found.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleDelete() {
+    const confirmed = window.confirm('Are you sure you want to delete this venue listing?')
+    if (!confirmed) return
+
+    try {
+      const token = localStorage.getItem('token')
+      await axios.delete('http://localhost:5000/api/venues/' + id, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      navigate('/my-venues')
+    } catch (err) {
+      alert(err.response?.data?.message || 'Could not delete venue.')
+    }
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return 'TBD'
+    return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+  }
+
+  if (loading) {
+    return (
+      <div className="venue-detail-page">
+        <Navbar role={role} setRole={setRole} />
+        <div style={{ padding: 60, textAlign: 'center', color: '#6B7280' }}>Loading venue...</div>
+      </div>
+    )
+  }
+
+  if (error || !venue) {
+    return (
+      <div className="venue-detail-page">
+        <Navbar role={role} setRole={setRole} />
+        <div style={{ padding: 60, textAlign: 'center' }}>
+          <h2>{error || 'Venue not found'}</h2>
+          <button
+            onClick={function () { navigate('/my-venues') }}
+            style={{ marginTop: 16, padding: '10px 24px', background: '#16A34A', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
+          >
+            Back to My Venues
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="venue-detail-page">
+
+      <Navbar role={role} setRole={setRole} />
+
+      <div className="venue-detail-content">
+
+        <button className="venue-detail-back-btn" onClick={function () { navigate('/my-venues') }}>
+          ← Back to My Venues
+        </button>
+
+        {/* Header card */}
+        <div className="venue-detail-header-card">
+          <div>
+            <h1 className="venue-detail-name">{venue.name}</h1>
+            <p className="venue-detail-address">{venue.address}</p>
+
+            <div className="venue-detail-meta-row">
+              <span className="venue-detail-chip">{venue.fieldType || 'Not specified'}</span>
+              <span className="venue-detail-chip">{venue.capacity} players</span>
+            </div>
+
+            {venue.facilities && venue.facilities.length > 0 && (
+              <div className="venue-detail-facilities">
+                {venue.facilities.map(function (f) {
+                  return <span key={f} className="venue-detail-facility-tag">{f}</span>
+                })}
+              </div>
+            )}
+          </div>
+
+          {role === 'Venue Host' && (
+            <div className="venue-detail-actions">
+              <button
+                className="btn-edit-venue-detail"
+                onClick={function () { navigate('/edit-venue/' + venue._id) }}
+              >
+                Edit Venue
+              </button>
+              <button
+                className="btn-delete-venue-detail"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Bookings */}
+        <div className="venue-bookings-card">
+          <div className="venue-bookings-header">
+            <h3>Upcoming Bookings</h3>
+            <span>{bookings.length} bookings</span>
+          </div>
+
+          {bookings.length === 0 ? (
+            <div className="venue-no-bookings">No upcoming bookings</div>
+          ) : (
+            <table className="venue-bookings-table">
+              <thead>
+                <tr>
+                  <th>Match</th>
+                  <th>Organizer</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map(function (booking) {
+                  return (
+                    <tr key={booking._id}>
+                      <td className="venue-booking-match-name">{booking.title}</td>
+                      <td>{booking.organizer?.name || 'Unknown'}</td>
+                      <td>{formatDate(booking.date)}</td>
+                      <td>{booking.time}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+      </div>
+
+      <Footer />
+
+    </div>
+  )
+}
+
+export default VenueDetailPage
