@@ -26,6 +26,8 @@ function CreateVenuePage({ role, setRole }) {
   const [facilities, setFacilities] = useState([])
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [createdVenue, setCreatedVenue] = useState(null)
 
   function toggleFacility(facility) {
     if (facilities.includes(facility)) {
@@ -71,8 +73,9 @@ function CreateVenuePage({ role, setRole }) {
         }
       )
 
-      // Go to the newly created venue's detail page
-      navigate('/venue/' + response.data.venue._id)
+      // Venue created successfully
+      setSubmitted(true)
+      setCreatedVenue(response.data.venue)
 
     } catch (error) {
       if (error.response && error.response.data.message) {
@@ -83,6 +86,44 @@ function CreateVenuePage({ role, setRole }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (submitted && createdVenue) {
+    return (
+      <div className="create-venue-success">
+        <Navbar role={role} setRole={setRole} />
+        <div className="create-venue-success-box">
+          <div className="venue-success-icon">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="12" fill="#16A34A" />
+              <polyline
+                points="6 12 10 16 18 8"
+                fill="none"
+                stroke="white"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <h2>Venue Created!</h2>
+          <p><strong>{createdVenue.name}</strong> has been listed.</p>
+          <p>{createdVenue.address}</p>
+          <p style={{ marginTop: 8, fontSize: 13, color: '#16A34A', fontWeight: 600 }}>
+            Field Type: {createdVenue.fieldType || 'Not specified'} · Capacity: {createdVenue.capacity}
+          </p>
+          <div className="venue-success-buttons">
+            <button
+              className="btn-venue-success-back"
+              onClick={function () { navigate('/my-venues') }}
+            >
+              Back to My Venues
+            </button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
   }
 
   return (
