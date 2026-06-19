@@ -11,6 +11,7 @@ import VenueDashboardPage from './pages/VenueDashboard/VenueDashboardPage'
 import EditMatchPage from './pages/EditMatch/EditMatchPage'
 import MyVenuesPage from './pages/MyVenues/MyVenuesPage'
 import CreateVenuePage from './pages/CreateVenue/CreateVenuePage'
+import VenueDetailPage from './pages/VenueDetail/VenueDetailPage'
 
 
 
@@ -40,6 +41,7 @@ function App() {
         <Route path="/venue-dashboard" element={<VenueDashboardPage role={role} setRole={setRole} />} />
         <Route path="/my-venues" element={<MyVenuesPage role={role} setRole={setRole} />} />
         <Route path="/create-venue" element={<CreateVenuePage role={role} setRole={setRole} />} />
+        <Route path="/venue/:id" element={<VenueDetailPage role={role} setRole={setRole} />} />
       </Routes> 
     </BrowserRouter>
   )
