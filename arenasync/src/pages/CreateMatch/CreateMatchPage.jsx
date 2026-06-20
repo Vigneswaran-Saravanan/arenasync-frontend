@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import './CreateMatchPage.css'
 import Navbar from '../../components/Navbar/Navbar'
@@ -9,6 +9,7 @@ import IconLocation from '../../components/icons/IconLocation'
 function CreateMatchPage({ role, setRole }) {
 
   const navigate = useNavigate()
+  const location = useLocation()
 
   const [title, setTitle] = useState('')
   const [venue, setVenue] = useState('')
@@ -22,6 +23,26 @@ function CreateMatchPage({ role, setRole }) {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [createdMatch, setCreatedMatch] = useState(null)
+
+  // Holds the registered venue if the organizer picked one from Browse Venues
+  const [selectedVenue, setSelectedVenue] = useState(null)
+
+  // Check if a venue was passed back from Browse Venues or Venue Detail
+  useEffect(function () {
+    if (location.state && location.state.selectedVenue) {
+      const picked = location.state.selectedVenue
+      setSelectedVenue(picked)
+      setVenue(picked.name)
+      setAddress(picked.address)
+    }
+  }, [location.state])
+
+  // Clear the selected venue and go back to typing manually
+  function handleChangeVenue() {
+    setSelectedVenue(null)
+    setVenue('')
+    setAddress('')
+  }
 
   function validate() {
     const newErrors = {}
@@ -53,6 +74,7 @@ function CreateMatchPage({ role, setRole }) {
         {
           title,
           venue,
+          venueId: selectedVenue ? selectedVenue.venueId : null,
           address: address || 'Toronto, ON',
           date,
           time,
@@ -155,14 +177,90 @@ function CreateMatchPage({ role, setRole }) {
             {errors.title && <p className="form-error">{errors.title}</p>}
           </div>
 
+          {/* Selected venue banner */}
+          {selectedVenue && (
+            <div style={{
+              background: '#F0FDF4',
+              border: '1px solid #86EFAC',
+              borderRadius: 8,
+              padding: '12px 14px',
+              marginBottom: 20,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#15803D' }}>
+                  Using registered venue
+                </p>
+                <p style={{ margin: 0, fontSize: 13, color: '#374151' }}>
+                  {selectedVenue.name}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleChangeVenue}
+                style={{
+                  background: 'white',
+                  border: '1px solid #86EFAC',
+                  color: '#15803D',
+                  borderRadius: 6,
+                  padding: '6px 12px',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                Change Venue
+              </button>
+            </div>
+          )}
+
           {/* Venue */}
           <div className="form-group">
             <label className="form-label">Venue Name</label>
+
+            {!selectedVenue && (
+              <div style={{
+                background: '#F9FAFB',
+                border: '1px solid #E5E7EB',
+                borderRadius: 8,
+                padding: '10px 14px',
+                marginBottom: 10,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: 12
+              }}>
+                <p style={{ margin: 0, fontSize: 12.5, color: '#6B7280' }}>
+                  You can pick a venue already registered on ArenaSync or type your own location below.
+                </p>
+                <button
+                  type="button"
+                  onClick={function () { navigate('/browse-venues') }}
+                  style={{
+                    background: 'white',
+                    border: '1px solid #16A34A',
+                    color: '#16A34A',
+                    borderRadius: 6,
+                    padding: '6px 12px',
+                    fontSize: 12.5,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  Browse Venues →
+                </button>
+              </div>
+            )}
+
             <input
               type="text"
               className={errors.venue ? 'form-input error' : 'form-input'}
               placeholder="e.g. Christie Pits Park"
               value={venue}
+              disabled={!!selectedVenue}
               onChange={function (e) { setVenue(e.target.value) }}
             />
             {errors.venue && <p className="form-error">{errors.venue}</p>}
@@ -176,6 +274,7 @@ function CreateMatchPage({ role, setRole }) {
               className="form-input"
               placeholder="Street address, Toronto"
               value={address}
+              disabled={!!selectedVenue}
               onChange={function (e) { setAddress(e.target.value) }}
             />
           </div>
