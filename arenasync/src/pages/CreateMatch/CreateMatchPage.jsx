@@ -81,7 +81,7 @@ function CreateMatchPage({ role, setRole }) {
           skillLevel,
           maxPlayers,
           description: notes,
-          pin: { top: '50%', left: '50%' }
+    
         },
         {
           headers: {
