@@ -76,7 +76,17 @@ function BrowseVenuesPage({ role, setRole }) {
 
                                 <div className="browse-venue-info">
                                     <h3 className="browse-venue-title">{venue.name}</h3>
-                                    <p className="browse-venue-address">{venue.address}</p>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                                        <p className="browse-venue-address" style={{ margin: 0 }}>{venue.address}</p>
+
+                                        <a href={'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(venue.address || '')}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            style={{ fontSize: 12, fontWeight: 600, color: '#16A34A', textDecoration: 'none' }}
+                                        >
+                                            Get Directions
+                                        </a>
+                                    </div>
                                     <div className="browse-venue-meta">
                                         <span>{venue.fieldType || 'Not specified'}</span>
                                         <span>{venue.capacity} players</span>
@@ -107,7 +117,7 @@ function BrowseVenuesPage({ role, setRole }) {
 
             <Footer />
 
-        </div>
+        </div >
     )
 }
 
