@@ -11,6 +11,9 @@
   background-color: var(--white);
   border-bottom: 1px solid var(--border);
   padding: 10px 24px;
+  position: sticky;
+  top: 64px;
+  z-index: 90;
 }
 
 .filter-bar-inner {
@@ -85,7 +88,6 @@
 .main-panels {
   display: flex;
   flex: 1;
-  height: calc(100vh - 120px);
   align-items: flex-start;
 }
 
@@ -331,9 +333,9 @@
 /* ── Right Panel (Map) ── */
 .right-panel {
   width: 58%;
-  height: calc(100vh - 120px);
   position: sticky;
   top: 0;
+  height: 100vh;
   overflow: hidden;
   background: #E8F5E9;
   flex-shrink: 0;
