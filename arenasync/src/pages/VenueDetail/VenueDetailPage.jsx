@@ -100,7 +100,17 @@ function VenueDetailPage({ role, setRole }) {
         <div className="venue-detail-header-card">
           <div>
             <h1 className="venue-detail-name">{venue.name}</h1>
-            <p className="venue-detail-address">{venue.address}</p>
+            <div className="venue-detail-address-row">
+              <p className="venue-detail-address">{venue.address}</p>
+
+              <a href={'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(venue.address || '')}
+                target="_blank"
+                rel="noreferrer"
+                className="venue-detail-directions-link"
+              >
+                Get Directions
+              </a>
+            </div>
 
             <div className="venue-detail-meta-row">
               <span className="venue-detail-chip">{venue.fieldType || 'Not specified'}</span>
