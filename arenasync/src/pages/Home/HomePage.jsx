@@ -26,7 +26,7 @@ function HomePage({ role, setRole }) {
   const [error, setError] = useState(null)
 
   // Fetch matches from backend when page loads
-  useEffect(function() {
+  useEffect(function () {
     async function fetchMatches() {
       try {
         setLoading(true)
@@ -42,8 +42,8 @@ function HomePage({ role, setRole }) {
   }, [])
 
   // Format backend data to match what components expect
-  const formattedMatches = matches.map(function(match) {
-    const confirmedPlayers = match.players.filter(function(p) {
+  const formattedMatches = matches.map(function (match) {
+    const confirmedPlayers = match.players.filter(function (p) {
       return p.status === 'confirmed'
     })
     return {
@@ -343,56 +343,77 @@ function MatchCard({ match, joined, onJoin, onView, role }) {
 
 // Map Panel 
 function MapPanel({ matches, selectedPin, setSelectedPin, onPinView }) {
+
+  const [zoom, setZoom] = useState(1)
+
+  function zoomIn() {
+    setZoom(function (z) { return Math.min(z + 0.2, 2.2) })
+  }
+
+  function zoomOut() {
+    setZoom(function (z) { return Math.max(z - 0.2, 0.6) })
+  }
+
   return (
     <div className="map-container">
 
-      <svg className="map-svg-grid">
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (i) {
-          return <line key={'h' + i} x1="0" y1={i * 10 + '%'} x2="100%" y2={i * 10 + '%'} stroke="#86efac" strokeWidth="1" />
-        })}
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (i) {
-          return <line key={'v' + i} x1={i * 10 + '%'} y1="0" x2={i * 10 + '%'} y2="100%" stroke="#86efac" strokeWidth="1" />
-        })}
-      </svg>
+      <div className="map-zoomable" style={{ transform: 'scale(' + zoom + ')' }}>
 
-      <svg className="map-svg-roads">
-        <line x1="0" y1="40%" x2="100%" y2="40%" stroke="#4ade80" strokeWidth="6" />
-        <line x1="30%" y1="0" x2="30%" y2="100%" stroke="#4ade80" strokeWidth="6" />
-        <line x1="0" y1="65%" x2="100%" y2="65%" stroke="#4ade80" strokeWidth="3" />
-        <line x1="65%" y1="0" x2="65%" y2="100%" stroke="#4ade80" strokeWidth="3" />
-      </svg>
+        <svg className="map-svg-grid">
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (i) {
+            return <line key={'h' + i} x1="0" y1={i * 10 + '%'} x2="100%" y2={i * 10 + '%'} stroke="#86efac" strokeWidth="1" />
+          })}
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (i) {
+            return <line key={'v' + i} x1={i * 10 + '%'} y1="0" x2={i * 10 + '%'} y2="100%" stroke="#86efac" strokeWidth="1" />
+          })}
+        </svg>
+
+        <svg className="map-svg-roads">
+          <line x1="0" y1="40%" x2="100%" y2="40%" stroke="#4ade80" strokeWidth="6" />
+          <line x1="30%" y1="0" x2="30%" y2="100%" stroke="#4ade80" strokeWidth="6" />
+          <line x1="0" y1="65%" x2="100%" y2="65%" stroke="#4ade80" strokeWidth="3" />
+          <line x1="65%" y1="0" x2="65%" y2="100%" stroke="#4ade80" strokeWidth="3" />
+        </svg>
+
+        {matches.map(function (match) {
+          return (
+            <div
+              key={match.id}
+              className="map-pin-wrapper"
+              style={{ top: match.pin.top, left: match.pin.left }}
+              onMouseEnter={function () { setSelectedPin(match.id) }}
+              onMouseLeave={function () { setSelectedPin(null) }}
+              onClick={function () { onPinView(match.id) }}
+            >
+              <div className={selectedPin === match.id ? 'map-pin-circle selected' : 'map-pin-circle'}>
+                <div className="map-pin-dot" />
+              </div>
+
+              {selectedPin === match.id && (
+                <div className="map-pin-popup">
+                  <h4>{match.title}</h4>
+                  <p>{match.time} · {match.spotsLeft} spots left</p>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#16A34A' }}>
+                    Click to view →
+                  </span>
+                </div>
+              )}
+            </div>
+          )
+        })}
+
+      </div>
 
       <div className="map-city-label">
         <IconLocation size={13} color="#16A34A" />
         Toronto, ON
       </div>
 
-      {matches.map(function (match) {
-        return (
-          <div
-            key={match.id}
-            className="map-pin-wrapper"
-            style={{ top: match.pin.top, left: match.pin.left }}
-            onMouseEnter={function () { setSelectedPin(match.id) }}
-            onMouseLeave={function () { setSelectedPin(null) }}
-            onClick={function () { onPinView(match.id) }}
-          >
-            <div className={selectedPin === match.id ? 'map-pin-circle selected' : 'map-pin-circle'}>
-              <div className="map-pin-dot" />
-            </div>
-
-            {selectedPin === match.id && (
-              <div className="map-pin-popup">
-                <h4>{match.title}</h4>
-                <p>{match.time} · {match.spotsLeft} spots left</p>
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#16A34A' }}>
-                  Click to view →
-                </span>
-              </div>
-            )}
-          </div>
-        )
-      })}
+      <div className="map-zoom-controls">
+        <button className="map-zoom-btn" onClick={zoomIn} disabled={zoom >= 2.2}>+</button>
+        <div className="map-zoom-divider" />
+        <button className="map-zoom-btn" onClick={zoomOut} disabled={zoom <= 0.6}>−</button>
+      </div>
 
     </div>
   )
