@@ -50,6 +50,15 @@ function VenueDetailPage({ role, setRole }) {
     return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
   }
 
+  // Works out where the back button and error screen should go, based on role
+  function getBackPath() {
+    return role === 'Venue Host' ? '/my-venues' : '/browse-venues'
+  }
+
+  function getBackLabel() {
+    return role === 'Venue Host' ? '← Back to My Venues' : '← Back to Browse Venues'
+  }
+
   if (loading) {
     return (
       <div className="venue-detail-page">
@@ -66,10 +75,10 @@ function VenueDetailPage({ role, setRole }) {
         <div style={{ padding: 60, textAlign: 'center' }}>
           <h2>{error || 'Venue not found'}</h2>
           <button
-            onClick={function () { navigate('/my-venues') }}
+            onClick={function () { navigate(getBackPath()) }}
             style={{ marginTop: 16, padding: '10px 24px', background: '#16A34A', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
           >
-            Back to My Venues
+            {getBackLabel()}
           </button>
         </div>
       </div>
@@ -83,8 +92,8 @@ function VenueDetailPage({ role, setRole }) {
 
       <div className="venue-detail-content">
 
-        <button className="venue-detail-back-btn" onClick={function () { navigate('/my-venues') }}>
-          ← Back to My Venues
+        <button className="venue-detail-back-btn" onClick={function () { navigate(getBackPath()) }}>
+          {getBackLabel()}
         </button>
 
         {/* Header card */}
@@ -123,42 +132,65 @@ function VenueDetailPage({ role, setRole }) {
               </button>
             </div>
           )}
-        </div>
 
-        {/* Bookings */}
-        <div className="venue-bookings-card">
-          <div className="venue-bookings-header">
-            <h3>Upcoming Bookings</h3>
-            <span>{bookings.length} bookings</span>
-          </div>
-
-          {bookings.length === 0 ? (
-            <div className="venue-no-bookings">No upcoming bookings</div>
-          ) : (
-            <table className="venue-bookings-table">
-              <thead>
-                <tr>
-                  <th>Match</th>
-                  <th>Organizer</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.map(function (booking) {
-                  return (
-                    <tr key={booking._id}>
-                      <td className="venue-booking-match-name">{booking.title}</td>
-                      <td>{booking.organizer?.name || 'Unknown'}</td>
-                      <td>{formatDate(booking.date)}</td>
-                      <td>{booking.time}</td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+          {role === 'Organizer' && (
+            <div className="venue-detail-actions">
+              <button
+                className="btn-edit-venue-detail"
+                onClick={function () {
+                  navigate('/create-match', {
+                    state: {
+                      selectedVenue: {
+                        venueId: venue._id,
+                        name: venue.name,
+                        address: venue.address
+                      }
+                    }
+                  })
+                }}
+              >
+                Use This Venue
+              </button>
+            </div>
           )}
         </div>
+
+        {/* Bookings — only visible to the venue host who owns this venue */}
+        {role === 'Venue Host' && (
+          <div className="venue-bookings-card">
+            <div className="venue-bookings-header">
+              <h3>Upcoming Bookings</h3>
+              <span>{bookings.length} bookings</span>
+            </div>
+
+            {bookings.length === 0 ? (
+              <div className="venue-no-bookings">No upcoming bookings</div>
+            ) : (
+              <table className="venue-bookings-table">
+                <thead>
+                  <tr>
+                    <th>Match</th>
+                    <th>Organizer</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookings.map(function (booking) {
+                    return (
+                      <tr key={booking._id}>
+                        <td className="venue-booking-match-name">{booking.title}</td>
+                        <td>{booking.organizer?.name || 'Unknown'}</td>
+                        <td>{formatDate(booking.date)}</td>
+                        <td>{booking.time}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
 
       </div>
 
