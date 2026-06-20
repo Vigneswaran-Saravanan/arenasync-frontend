@@ -241,3 +241,25 @@
   font-size: 14px;
   cursor: pointer;
 }
+
+.venue-detail-address-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.venue-detail-address-row .venue-detail-address {
+  margin-bottom: 0;
+}
+
+.venue-detail-directions-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: #16A34A;
+  text-decoration: none;
+}
+
+.venue-detail-directions-link:hover {
+  text-decoration: underline;
+}
