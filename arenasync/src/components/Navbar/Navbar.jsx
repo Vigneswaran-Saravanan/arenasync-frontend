@@ -218,6 +218,15 @@ function Navbar({ role, setRole }) {
               </button>
             )}
 
+            {role === 'Admin' && (
+              <button
+                className={isActive('/admin') ? 'nav-link-btn active' : 'nav-link-btn'}
+                onClick={function () { navigate('/admin') }}
+              >
+                Admin Panel
+              </button>
+            )}
+
             <button className="nav-link-btn">
               <IconUser size={15} color="#6B7280" />
               Profile
