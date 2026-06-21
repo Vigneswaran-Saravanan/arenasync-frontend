@@ -236,3 +236,14 @@
   color: var(--white);
   cursor: pointer;
 }
+
+/* Status dropdown inline in the matches table */
+.admin-status-select {
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  background: var(--white);
+  color: var(--body);
+  cursor: pointer;
+}
