@@ -31,6 +31,16 @@ function AdminPage({ role, setRole }) {
     // The user currently open in the Delete confirmation modal (null = closed)
     const [deletingUser, setDeletingUser] = useState(null)
 
+    // Matches section state
+    const [matches, setMatches] = useState([])
+    const [matchesLoaded, setMatchesLoaded] = useState(false)
+    const [matchesLoading, setMatchesLoading] = useState(false)
+    const [matchSearchTerm, setMatchSearchTerm] = useState('')
+    const [matchStatusFilter, setMatchStatusFilter] = useState('All')
+
+    // The match currently open in the Delete confirmation modal (null = closed)
+    const [deletingMatch, setDeletingMatch] = useState(null)
+
     // Get the logged-in admin so we can hide Edit/Delete on their own row
     const storedUser = localStorage.getItem('user')
     const currentAdmin = storedUser ? JSON.parse(storedUser) : null
@@ -42,7 +52,7 @@ function AdminPage({ role, setRole }) {
         }
     }, [role, navigate])
 
-    // Load all users when the page first opens
+    // Load all users 
     useEffect(function () {
         async function fetchUsers() {
             try {
@@ -62,6 +72,31 @@ function AdminPage({ role, setRole }) {
         fetchUsers()
     }, [])
 
+    // Load all matches 
+    useEffect(function () {
+        async function fetchMatches() {
+            try {
+                setMatchesLoading(true)
+                const token = localStorage.getItem('token')
+
+                const res = await axios.get('http://localhost:5000/api/admin/matches', {
+                    headers: { Authorization: 'Bearer ' + token }
+                })
+                setMatches(res.data)
+                setMatchesLoaded(true)
+
+            } catch (err) {
+                setActionError('Could not load matches.')
+            } finally {
+                setMatchesLoading(false)
+            }
+        }
+
+        if (activeSection === 'matches' && !matchesLoaded) {
+            fetchMatches()
+        }
+    }, [activeSection, matchesLoaded])
+
     // Apply search and role filter to the users list
     const filteredUsers = users.filter(function (u) {
         const search = searchTerm.toLowerCase()
@@ -74,7 +109,21 @@ function AdminPage({ role, setRole }) {
         return matchesSearch && matchesRole
     })
 
-    // Open the Edit modal pre-filled with this user's current role and status
+    // Apply search and status filter to the matches list
+    const filteredMatches = matches.filter(function (m) {
+        const search = matchSearchTerm.toLowerCase()
+        const organizerName = m.organizer ? m.organizer.name.toLowerCase() : ''
+
+        const matchesSearch =
+            m.title.toLowerCase().includes(search) ||
+            organizerName.includes(search)
+
+        const matchesStatusFilter = matchStatusFilter === 'All' || m.status === matchStatusFilter
+
+        return matchesSearch && matchesStatusFilter
+    })
+
+    // Open the Edit modal pre-filled 
     function openEditModal(user) {
         setEditingUser(user)
         setEditRole(user.role)
@@ -93,7 +142,6 @@ function AdminPage({ role, setRole }) {
                 { headers: { Authorization: 'Bearer ' + token } }
             )
 
-            // Replace the old version of this user in our list with the updated one
             setUsers(users.map(function (u) {
                 return u._id === editingUser._id ? res.data : u
             }))
@@ -106,7 +154,7 @@ function AdminPage({ role, setRole }) {
     }
 
     // Delete the user from the backend and remove them from our list
-    async function handleConfirmDelete() {
+    async function handleConfirmDeleteUser() {
         try {
             const token = localStorage.getItem('token')
 
@@ -123,6 +171,47 @@ function AdminPage({ role, setRole }) {
 
         } catch (err) {
             setActionError('Could not delete user.')
+        }
+    }
+
+    // Update a match's status the moment the dropdown changes
+    async function handleStatusChange(matchId, newStatus) {
+        try {
+            const token = localStorage.getItem('token')
+
+            const res = await axios.patch(
+                'http://localhost:5000/api/admin/matches/' + matchId,
+                { status: newStatus },
+                { headers: { Authorization: 'Bearer ' + token } }
+            )
+
+            setMatches(matches.map(function (m) {
+                return m._id === matchId ? res.data : m
+            }))
+
+        } catch (err) {
+            setActionError('Could not update match status.')
+        }
+    }
+
+    // Delete the match from the backend and remove it from our list
+    async function handleConfirmDeleteMatch() {
+        try {
+            const token = localStorage.getItem('token')
+
+            await axios.delete(
+                'http://localhost:5000/api/admin/matches/' + deletingMatch._id,
+                { headers: { Authorization: 'Bearer ' + token } }
+            )
+
+            setMatches(matches.filter(function (m) {
+                return m._id !== deletingMatch._id
+            }))
+
+            setDeletingMatch(null)
+
+        } catch (err) {
+            setActionError('Could not delete match.')
         }
     }
 
@@ -183,7 +272,6 @@ function AdminPage({ role, setRole }) {
                     {/* Users section */}
                     {activeSection === 'users' && (
                         <>
-                            {/* Search bar and role filter */}
                             <div className="admin-toolbar">
                                 <input
                                     type="text"
@@ -256,9 +344,81 @@ function AdminPage({ role, setRole }) {
                         </>
                     )}
 
-                    {/* Matches section placeholder */}
+                    {/* Matches section */}
                     {activeSection === 'matches' && (
-                        <p style={{ color: '#6B7280' }}>Matches section coming next.</p>
+                        <>
+                            <div className="admin-toolbar">
+                                <input
+                                    type="text"
+                                    className="admin-search-input"
+                                    placeholder="Search matches..."
+                                    value={matchSearchTerm}
+                                    onChange={function (e) { setMatchSearchTerm(e.target.value) }}
+                                />
+                                <select
+                                    className="admin-filter-select"
+                                    value={matchStatusFilter}
+                                    onChange={function (e) { setMatchStatusFilter(e.target.value) }}
+                                >
+                                    <option value="All">All Statuses</option>
+                                    <option value="Upcoming">Upcoming</option>
+                                    <option value="Ongoing">Ongoing</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                            </div>
+
+                            {matchesLoading ? (
+                                <p style={{ color: '#6B7280' }}>Loading matches...</p>
+                            ) : (
+                                <div className="admin-table-wrap">
+                                    <table className="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Title</th>
+                                                <th>Organizer</th>
+                                                <th>Venue</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredMatches.map(function (m) {
+                                                return (
+                                                    <tr key={m._id}>
+                                                        <td>{m.title}</td>
+                                                        <td>{m.organizer ? m.organizer.name : '—'}</td>
+                                                        <td>{m.venue}</td>
+                                                        <td>{new Date(m.date).toLocaleDateString()}</td>
+                                                        <td>
+                                                            <select
+                                                                className="admin-status-select"
+                                                                value={m.status}
+                                                                onChange={function (e) { handleStatusChange(m._id, e.target.value) }}
+                                                            >
+                                                                <option value="Upcoming">Upcoming</option>
+                                                                <option value="Ongoing">Ongoing</option>
+                                                                <option value="Completed">Completed</option>
+                                                                <option value="Cancelled">Cancelled</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <button
+                                                                className="admin-action-btn admin-action-delete"
+                                                                onClick={function () { setDeletingMatch(m) }}
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </>
                     )}
 
                     {/* Venues section placeholder */}
@@ -325,7 +485,28 @@ function AdminPage({ role, setRole }) {
                             <button className="admin-modal-cancel-btn" onClick={function () { setDeletingUser(null) }}>
                                 Cancel
                             </button>
-                            <button className="admin-modal-delete-btn" onClick={handleConfirmDelete}>
+                            <button className="admin-modal-delete-btn" onClick={handleConfirmDeleteUser}>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Match confirmation modal */}
+            {deletingMatch && (
+                <div className="admin-modal-overlay" onClick={function () { setDeletingMatch(null) }}>
+                    <div className="admin-modal-card" onClick={function (e) { e.stopPropagation() }}>
+                        <h3 className="admin-modal-title">Delete "{deletingMatch.title}"?</h3>
+                        <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 20 }}>
+                            This will permanently remove the match. This cannot be undone.
+                        </p>
+
+                        <div className="admin-modal-actions">
+                            <button className="admin-modal-cancel-btn" onClick={function () { setDeletingMatch(null) }}>
+                                Cancel
+                            </button>
+                            <button className="admin-modal-delete-btn" onClick={handleConfirmDeleteMatch}>
                                 Delete
                             </button>
                         </div>
