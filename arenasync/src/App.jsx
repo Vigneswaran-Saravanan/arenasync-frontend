@@ -14,6 +14,7 @@ import CreateVenuePage from './pages/CreateVenue/CreateVenuePage'
 import VenueDetailPage from './pages/VenueDetail/VenueDetailPage'
 import EditVenuePage from './pages/EditVenue/EditVenuePage'
 import BrowseVenuesPage from './pages/BrowseVenues/BrowseVenuesPage'
+import AdminPage from './pages/Admin/AdminPage'
 
 
 
@@ -46,6 +47,7 @@ function App() {
         <Route path="/venue/:id" element={<VenueDetailPage role={role} setRole={setRole} />} />
         <Route path="/edit-venue/:id" element={<EditVenuePage role={role} setRole={setRole} />} />
         <Route path="/browse-venues" element={<BrowseVenuesPage role={role} setRole={setRole} />} />
+        <Route path="/admin" element={<AdminPage role={role} setRole={setRole} />} />
       </Routes> 
     </BrowserRouter>
   )
