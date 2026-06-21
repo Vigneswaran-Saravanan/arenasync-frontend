@@ -104,3 +104,135 @@
 .admin-table tr:last-child td {
   border-bottom: none;
 }
+
+/* Search bar and filter row */
+.admin-toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.admin-search-input {
+  flex: 1;
+  max-width: 280px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.admin-filter-select {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--white);
+  color: var(--body);
+  cursor: pointer;
+}
+
+/* Edit / Delete row action links */
+.admin-action-btn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.admin-action-edit {
+  color: #2563EB;
+  margin-right: 14px;
+}
+
+.admin-action-delete {
+  color: #DC2626;
+}
+
+.admin-you-label {
+  font-size: 11px;
+  color: var(--placeholder);
+  margin-left: 6px;
+}
+
+/* Modal overlay and card, shared by Edit and Delete modals */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.admin-modal-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px;
+  width: 360px;
+}
+
+.admin-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 16px;
+}
+
+.admin-modal-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--body);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.admin-modal-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.admin-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.admin-modal-cancel-btn {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--body);
+  cursor: pointer;
+}
+
+.admin-modal-save-btn {
+  background: var(--green);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  cursor: pointer;
+}
+
+.admin-modal-delete-btn {
+  background: #DC2626;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  cursor: pointer;
+}
