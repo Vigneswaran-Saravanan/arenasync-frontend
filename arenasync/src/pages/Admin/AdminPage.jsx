@@ -179,14 +179,14 @@ function AdminPage({ role, setRole }) {
         try {
             const token = localStorage.getItem('token')
 
-            const res = await axios.patch(
+            await axios.patch(
                 'http://localhost:5000/api/admin/matches/' + matchId,
                 { status: newStatus },
                 { headers: { Authorization: 'Bearer ' + token } }
             )
 
             setMatches(matches.map(function (m) {
-                return m._id === matchId ? res.data : m
+                return m._id === matchId ? { ...m, status: newStatus } : m
             }))
 
         } catch (err) {
