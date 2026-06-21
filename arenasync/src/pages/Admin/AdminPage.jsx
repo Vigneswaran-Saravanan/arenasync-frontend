@@ -41,6 +41,16 @@ function AdminPage({ role, setRole }) {
     // The match currently open in the Delete confirmation modal (null = closed)
     const [deletingMatch, setDeletingMatch] = useState(null)
 
+    // Venues section state
+    const [venues, setVenues] = useState([])
+    const [venuesLoaded, setVenuesLoaded] = useState(false)
+    const [venuesLoading, setVenuesLoading] = useState(false)
+    const [venueSearchTerm, setVenueSearchTerm] = useState('')
+    const [venueStatusFilter, setVenueStatusFilter] = useState('All')
+
+    // The venue currently open in the Delete confirmation modal (null = closed)
+    const [deletingVenue, setDeletingVenue] = useState(null)
+
     // Get the logged-in admin so we can hide Edit/Delete on their own row
     const storedUser = localStorage.getItem('user')
     const currentAdmin = storedUser ? JSON.parse(storedUser) : null
@@ -52,7 +62,7 @@ function AdminPage({ role, setRole }) {
         }
     }, [role, navigate])
 
-    // Load all users 
+    // Load all users when the page first opens
     useEffect(function () {
         async function fetchUsers() {
             try {
@@ -97,6 +107,31 @@ function AdminPage({ role, setRole }) {
         }
     }, [activeSection, matchesLoaded])
 
+    // Load all venues 
+    useEffect(function () {
+        async function fetchVenues() {
+            try {
+                setVenuesLoading(true)
+                const token = localStorage.getItem('token')
+
+                const res = await axios.get('http://localhost:5000/api/admin/venues', {
+                    headers: { Authorization: 'Bearer ' + token }
+                })
+                setVenues(res.data)
+                setVenuesLoaded(true)
+
+            } catch (err) {
+                setActionError('Could not load venues.')
+            } finally {
+                setVenuesLoading(false)
+            }
+        }
+
+        if (activeSection === 'venues' && !venuesLoaded) {
+            fetchVenues()
+        }
+    }, [activeSection, venuesLoaded])
+
     // Apply search and role filter to the users list
     const filteredUsers = users.filter(function (u) {
         const search = searchTerm.toLowerCase()
@@ -123,7 +158,22 @@ function AdminPage({ role, setRole }) {
         return matchesSearch && matchesStatusFilter
     })
 
-    // Open the Edit modal pre-filled 
+    // Apply search and status filter to the venues list
+    const filteredVenues = venues.filter(function (v) {
+        const search = venueSearchTerm.toLowerCase()
+        const hostName = v.host ? v.host.name.toLowerCase() : ''
+
+        const matchesSearch =
+            v.name.toLowerCase().includes(search) ||
+            hostName.includes(search)
+
+        const statusText = v.isActive ? 'Active' : 'Inactive'
+        const matchesStatusFilter = venueStatusFilter === 'All' || statusText === venueStatusFilter
+
+        return matchesSearch && matchesStatusFilter
+    })
+
+    // Open the Edit modal pre-filled with this user's current role and status
     function openEditModal(user) {
         setEditingUser(user)
         setEditRole(user.role)
@@ -212,6 +262,27 @@ function AdminPage({ role, setRole }) {
 
         } catch (err) {
             setActionError('Could not delete match.')
+        }
+    }
+
+    // Delete the venue from the backend and remove it from our list
+    async function handleConfirmDeleteVenue() {
+        try {
+            const token = localStorage.getItem('token')
+
+            await axios.delete(
+                'http://localhost:5000/api/admin/venues/' + deletingVenue._id,
+                { headers: { Authorization: 'Bearer ' + token } }
+            )
+
+            setVenues(venues.filter(function (v) {
+                return v._id !== deletingVenue._id
+            }))
+
+            setDeletingVenue(null)
+
+        } catch (err) {
+            setActionError('Could not delete venue.')
         }
     }
 
@@ -421,9 +492,66 @@ function AdminPage({ role, setRole }) {
                         </>
                     )}
 
-                    {/* Venues section placeholder */}
+                    {/* Venues section */}
                     {activeSection === 'venues' && (
-                        <p style={{ color: '#6B7280' }}>Venues section coming next.</p>
+                        <>
+                            <div className="admin-toolbar">
+                                <input
+                                    type="text"
+                                    className="admin-search-input"
+                                    placeholder="Search venues..."
+                                    value={venueSearchTerm}
+                                    onChange={function (e) { setVenueSearchTerm(e.target.value) }}
+                                />
+                                <select
+                                    className="admin-filter-select"
+                                    value={venueStatusFilter}
+                                    onChange={function (e) { setVenueStatusFilter(e.target.value) }}
+                                >
+                                    <option value="All">All Statuses</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+
+                            {venuesLoading ? (
+                                <p style={{ color: '#6B7280' }}>Loading venues...</p>
+                            ) : (
+                                <div className="admin-table-wrap">
+                                    <table className="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Venue Name</th>
+                                                <th>Host</th>
+                                                <th>Address</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredVenues.map(function (v) {
+                                                return (
+                                                    <tr key={v._id}>
+                                                        <td>{v.name}</td>
+                                                        <td>{v.host ? v.host.name : '—'}</td>
+                                                        <td>{v.address}</td>
+                                                        <td>{v.isActive ? 'Active' : 'Inactive'}</td>
+                                                        <td>
+                                                            <button
+                                                                className="admin-action-btn admin-action-delete"
+                                                                onClick={function () { setDeletingVenue(v) }}
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </>
                     )}
 
                 </main>
@@ -507,6 +635,27 @@ function AdminPage({ role, setRole }) {
                                 Cancel
                             </button>
                             <button className="admin-modal-delete-btn" onClick={handleConfirmDeleteMatch}>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Venue confirmation modal */}
+            {deletingVenue && (
+                <div className="admin-modal-overlay" onClick={function () { setDeletingVenue(null) }}>
+                    <div className="admin-modal-card" onClick={function (e) { e.stopPropagation() }}>
+                        <h3 className="admin-modal-title">Delete "{deletingVenue.name}"?</h3>
+                        <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 20 }}>
+                            This will permanently remove the venue listing. This cannot be undone.
+                        </p>
+
+                        <div className="admin-modal-actions">
+                            <button className="admin-modal-cancel-btn" onClick={function () { setDeletingVenue(null) }}>
+                                Cancel
+                            </button>
+                            <button className="admin-modal-delete-btn" onClick={handleConfirmDeleteVenue}>
                                 Delete
                             </button>
                         </div>
