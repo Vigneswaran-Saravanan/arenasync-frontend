@@ -62,7 +62,7 @@ function Navbar({ role, setRole }) {
         setNotifs(res.data)
 
       } catch (err) {
-  
+
         console.log('Could not load notifications')
       }
     }
@@ -107,10 +107,19 @@ function Navbar({ role, setRole }) {
         { headers: { Authorization: 'Bearer ' + token } }
       )
 
-      setNotifs(notifs.filter(function (n) { return n._id !== notif._id }))
-
     } catch (err) {
       console.log('Could not accept request')
+    } finally {
+      try {
+        const token = localStorage.getItem('token')
+        await axios.delete(
+          'http://localhost:5000/api/notifications/' + notif._id,
+          { headers: { Authorization: 'Bearer ' + token } }
+        )
+      } catch (err) {
+        console.log('Could not delete notification')
+      }
+      setNotifs(notifs.filter(function (n) { return n._id !== notif._id }))
     }
   }
 
@@ -125,11 +134,19 @@ function Navbar({ role, setRole }) {
         { headers: { Authorization: 'Bearer ' + token } }
       )
 
-      // Remove this notification from the panel after acting on it
-      setNotifs(notifs.filter(function (n) { return n._id !== notif._id }))
-
     } catch (err) {
       console.log('Could not decline request')
+    } finally {
+      try {
+        const token = localStorage.getItem('token')
+        await axios.delete(
+          'http://localhost:5000/api/notifications/' + notif._id,
+          { headers: { Authorization: 'Bearer ' + token } }
+        )
+      } catch (err) {
+        console.log('Could not delete notification')
+      }
+      setNotifs(notifs.filter(function (n) { return n._id !== notif._id }))
     }
   }
 
