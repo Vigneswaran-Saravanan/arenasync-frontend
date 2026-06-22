@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import axios from 'axios'
 import './Navbar.css'
 import IconBell from '../icons/IconBell'
 import IconHome from '../icons/IconHome'
@@ -15,6 +16,8 @@ function Navbar({ role, setRole }) {
   const [showNotif, setShowNotif] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
 
+  const [notifs, setNotifs] = useState([])
+
   // Get logged in user from localStorage
   const storedUser = localStorage.getItem('user')
   const currentUser = storedUser ? JSON.parse(storedUser) : null
@@ -25,7 +28,7 @@ function Navbar({ role, setRole }) {
   // Get first name only for display
   const firstName = currentUser ? currentUser.name.split(' ')[0] : 'User'
 
-  // Check if a path is the current page
+
   function isActive(path) {
     return location.pathname === path
   }
@@ -46,89 +49,109 @@ function Navbar({ role, setRole }) {
     navigate('/login')
   }
 
-  // Notifications per role
-  const notifsByRole = {
-    Player: [
-      {
-        id: 1,
-        title: 'Join Request Approved',
-        message: "You're confirmed for Sunday Morning Kickabout",
-        time: '2h ago',
-        read: false,
-      },
-      {
-        id: 2,
-        title: 'Match Reminder',
-        message: 'Sunday Morning Kickabout tomorrow at 10:00 AM',
-        time: '1d ago',
-        read: true,
-      },
-      {
-        id: 3,
-        title: 'Match Cancelled',
-        message: 'Friday Futsal has been cancelled by organizer',
-        time: '2d ago',
-        read: true,
-      },
-    ],
-    Organizer: [
-      {
-        id: 1,
-        title: 'New Join Request',
-        message: 'Ahmed Hassan (88% attendance) wants to join',
-        time: '1h ago',
-        read: false,
-        isRequest: true,
-        playerId: 101,
-      },
-      {
-        id: 2,
-        title: 'New Join Request',
-        message: 'Fatima Malik (95% attendance) wants to join',
-        time: '2h ago',
-        read: false,
-        isRequest: true,
-        playerId: 102,
-      },
-      {
-        id: 3,
-        title: 'New Join Request',
-        message: 'Jordan Lee (72% attendance) wants to join',
-        time: '3h ago',
-        read: false,
-        isRequest: true,
-        playerId: 103,
-      },
-    ],
-    'Venue Host': [
-      {
-        id: 1,
-        title: 'New Booking',
-        message: 'Carlos Mendez booked your venue for Sunday Jun 7',
-        time: '3h ago',
-        read: false,
-      },
-      {
-        id: 2,
-        title: 'New Booking',
-        message: 'Sara Ivanova booked your venue for Wed Jun 4',
-        time: '1d ago',
-        read: true,
-      },
-    ],
-    Admin: [
-      {
-        id: 1,
-        title: 'New User Registered',
-        message: 'Ahmed Hassan joined as Player',
-        time: '1h ago',
-        read: false,
-      },
-    ],
+  // Fetch real notifications 
+  useEffect(function () {
+    async function fetchNotifications() {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) return
+
+        const res = await axios.get('http://localhost:5000/api/notifications', {
+          headers: { Authorization: 'Bearer ' + token }
+        })
+        setNotifs(res.data)
+
+      } catch (err) {
+  
+        console.log('Could not load notifications')
+      }
+    }
+    fetchNotifications()
+  }, [])
+
+  // Count unread notifications from real data
+  const unreadCount = notifs.filter(function (n) { return !n.read }).length
+
+  // When the bell is opened, mark all as read on the backend
+  async function handleOpenBell() {
+    setShowNotif(!showNotif)
+    setShowUserMenu(false)
+
+    if (!showNotif && unreadCount > 0) {
+      try {
+        const token = localStorage.getItem('token')
+
+        await axios.patch('http://localhost:5000/api/notifications/mark-all-read', {}, {
+          headers: { Authorization: 'Bearer ' + token }
+        })
+
+        // Update local state 
+        setNotifs(notifs.map(function (n) {
+          return { ...n, read: true }
+        }))
+
+      } catch (err) {
+        console.log('Could not mark notifications as read')
+      }
+    }
   }
 
-  const notifs = notifsByRole[role] || []
-  const unreadCount = notifs.filter(function (n) { return !n.read }).length
+  // Organizer accepts a join request directly from the notification panel
+  async function handleAccept(notif) {
+    try {
+      const token = localStorage.getItem('token')
+
+      await axios.put(
+        'http://localhost:5000/api/matches/' + notif.matchId + '/players/' + notif.senderId,
+        { action: 'confirmed' },
+        { headers: { Authorization: 'Bearer ' + token } }
+      )
+
+      setNotifs(notifs.filter(function (n) { return n._id !== notif._id }))
+
+    } catch (err) {
+      console.log('Could not accept request')
+    }
+  }
+
+  // Organizer declines a join request directly from the notification panel
+  async function handleDecline(notif) {
+    try {
+      const token = localStorage.getItem('token')
+
+      await axios.put(
+        'http://localhost:5000/api/matches/' + notif.matchId + '/players/' + notif.senderId,
+        { action: 'declined' },
+        { headers: { Authorization: 'Bearer ' + token } }
+      )
+
+      // Remove this notification from the panel after acting on it
+      setNotifs(notifs.filter(function (n) { return n._id !== notif._id }))
+
+    } catch (err) {
+      console.log('Could not decline request')
+    }
+  }
+
+  // Convert a notification type to a readable title
+  function getNotifTitle(type) {
+    if (type === 'join_request') return 'New Join Request'
+    if (type === 'request_accepted') return 'Join Request Approved'
+    if (type === 'request_declined') return 'Join Request Declined'
+    if (type === 'match_cancelled') return 'Match Cancelled'
+    return 'Notification'
+  }
+
+  // Format the createdAt timestamp to a relative time string
+  function formatTime(dateStr) {
+    const diff = Date.now() - new Date(dateStr).getTime()
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+    if (minutes < 60) return minutes + 'm ago'
+    if (hours < 24) return hours + 'h ago'
+    return days + 'd ago'
+  }
 
   return (
     <>
@@ -238,20 +261,14 @@ function Navbar({ role, setRole }) {
           <div className="navbar-right">
 
             {/* Bell */}
-            <div
-              className="navbar-bell"
-              onClick={function () {
-                setShowNotif(!showNotif)
-                setShowUserMenu(false)
-              }}
-            >
+            <div className="navbar-bell" onClick={handleOpenBell}>
               <IconBell size={21} color={role === 'Admin' ? '#9CA3AF' : '#6B7280'} />
               {unreadCount > 0 && (
                 <span className="navbar-badge">{unreadCount}</span>
               )}
             </div>
 
-            {/* Role badge — shows current role, not clickable */}
+            {/* Role badge */}
             <span className={getRoleBadgeClass(role)}>{role}</span>
 
             {/* User avatar + dropdown */}
@@ -266,12 +283,9 @@ function Navbar({ role, setRole }) {
                 {avatarLetter}
               </div>
 
-              {/* User dropdown menu */}
               {showUserMenu && (
                 <div className="role-dropdown">
-                  <div className="role-dropdown-label">
-                    {firstName}
-                  </div>
+                  <div className="role-dropdown-label">{firstName}</div>
                   <div style={{
                     padding: '8px 14px',
                     fontSize: 12,
@@ -303,33 +317,32 @@ function Navbar({ role, setRole }) {
             <div className="notif-header">
               <span>Notifications</span>
               <button className="notif-mark-read" onClick={function () { setShowNotif(false) }}>
-                Mark all read
+                Close
               </button>
             </div>
             <div className="notif-list">
+              {notifs.length === 0 && (
+                <div style={{ padding: '20px 16px', color: '#6B7280', fontSize: 13 }}>
+                  No notifications yet
+                </div>
+              )}
               {notifs.map(function (n) {
                 return (
-                  <div key={n.id} className={n.read ? 'notif-item' : 'notif-item unread'}>
-                    <p className="notif-item-title">{n.title}</p>
+                  <div key={n._id} className={n.read ? 'notif-item' : 'notif-item unread'}>
+                    <p className="notif-item-title">{getNotifTitle(n.type)}</p>
                     <p className="notif-item-message">{n.message}</p>
-                    <p className="notif-item-time">{n.time}</p>
+                    <p className="notif-item-time">{formatTime(n.createdAt)}</p>
 
-                    {n.isRequest && (
+                    {n.type === 'join_request' && (
                       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                         <button
-                          onClick={function () {
-                            alert('Request accepted! Player has been notified.')
-                            setShowNotif(false)
-                          }}
+                          onClick={function () { handleAccept(n) }}
                           style={{ background: '#16A34A', color: 'white', border: 'none', borderRadius: 6, padding: '5px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                         >
                           Accept
                         </button>
                         <button
-                          onClick={function () {
-                            alert('Request declined. Player has been notified.')
-                            setShowNotif(false)
-                          }}
+                          onClick={function () { handleDecline(n) }}
                           style={{ background: 'white', color: '#DC2626', border: '1px solid #FCA5A5', borderRadius: 6, padding: '5px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                         >
                           Decline
