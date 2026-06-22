@@ -15,6 +15,7 @@ import VenueDetailPage from './pages/VenueDetail/VenueDetailPage'
 import EditVenuePage from './pages/EditVenue/EditVenuePage'
 import BrowseVenuesPage from './pages/BrowseVenues/BrowseVenuesPage'
 import AdminPage from './pages/Admin/AdminPage'
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 
 
 
@@ -23,32 +24,105 @@ function App() {
   // Try to load the logged-in user from localstorage
   // This keeps the user logged in even after the page refresh
   const storedUser = localStorage.getItem('user')
-  const initialUser = storedUser ? JSON.parse(storedUser) : null 
+  const initialUser = storedUser ? JSON.parse(storedUser) : null
 
   // Role comes form the logged-in user, default to 'Player' 
   const [role, setRole] = useState(initialUser ? initialUser.role : 'Player')
 
-  
+
 
   return (
     <BrowserRouter>
       <Routes>
+
+        {/* Public routes — no login required */}
         <Route path="/register" element={<RegisterPage setRole={setRole} />} />
         <Route path="/login" element={<LoginPage setRole={setRole} />} />
-        <Route path="/" element={<HomePage role={role} setRole={setRole} />} />
-        <Route path="/match/:id" element={<MatchDetailPage role={role} setRole={setRole} />} />
-        <Route path="/my-matches" element={<MyMatchesPage role={role} setRole={setRole} />} />
-        <Route path="/create-match" element={<CreateMatchPage role={role} setRole={setRole} />} />
-        <Route path="/organizer-match/:id" element={<OrganizerMatchPage role={role} setRole={setRole} />} />
-        <Route path="/edit-match/:id" element={<EditMatchPage role={role} setRole={setRole} />} />
-        <Route path="/venue-dashboard" element={<VenueDashboardPage role={role} setRole={setRole} />} />
-        <Route path="/my-venues" element={<MyVenuesPage role={role} setRole={setRole} />} />
-        <Route path="/create-venue" element={<CreateVenuePage role={role} setRole={setRole} />} />
-        <Route path="/venue/:id" element={<VenueDetailPage role={role} setRole={setRole} />} />
-        <Route path="/edit-venue/:id" element={<EditVenuePage role={role} setRole={setRole} />} />
-        <Route path="/browse-venues" element={<BrowseVenuesPage role={role} setRole={setRole} />} />
-        <Route path="/admin" element={<AdminPage role={role} setRole={setRole} />} />
-      </Routes> 
+
+        {/* Any logged-in user */}
+        <Route path="/" element={
+          <ProtectedRoute role={role}>
+            <HomePage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/match/:id" element={
+          <ProtectedRoute role={role}>
+            <MatchDetailPage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/venue/:id" element={
+          <ProtectedRoute role={role}>
+            <VenueDetailPage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+        {/* Player or Organizer only */}
+        <Route path="/my-matches" element={
+          <ProtectedRoute role={role} allowedRoles={['Player', 'Organizer']}>
+            <MyMatchesPage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+        {/* Organizer only */}
+        <Route path="/create-match" element={
+          <ProtectedRoute role={role} allowedRoles={['Organizer']}>
+            <CreateMatchPage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/organizer-match/:id" element={
+          <ProtectedRoute role={role} allowedRoles={['Organizer']}>
+            <OrganizerMatchPage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/edit-match/:id" element={
+          <ProtectedRoute role={role} allowedRoles={['Organizer']}>
+            <EditMatchPage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/browse-venues" element={
+          <ProtectedRoute role={role} allowedRoles={['Organizer']}>
+            <BrowseVenuesPage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+        {/* Venue Host only */}
+        <Route path="/venue-dashboard" element={
+          <ProtectedRoute role={role} allowedRoles={['Venue Host']}>
+            <VenueDashboardPage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/my-venues" element={
+          <ProtectedRoute role={role} allowedRoles={['Venue Host']}>
+            <MyVenuesPage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/create-venue" element={
+          <ProtectedRoute role={role} allowedRoles={['Venue Host']}>
+            <CreateVenuePage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/edit-venue/:id" element={
+          <ProtectedRoute role={role} allowedRoles={['Venue Host']}>
+            <EditVenuePage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+        {/* Admin only */}
+        <Route path="/admin" element={
+          <ProtectedRoute role={role} allowedRoles={['Admin']}>
+            <AdminPage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+      </Routes>
     </BrowserRouter>
   )
 }
