@@ -267,11 +267,13 @@ function Navbar({ role, setRole }) {
               </button>
             )}
 
-            <button className="nav-link-btn">
-              <IconUser size={15} color="#6B7280" />
+            <button
+              className={isActive('/profile') ? 'nav-link-btn active' : 'nav-link-btn'}
+              onClick={function () { navigate('/profile') }}
+            >
+              <IconUser size={15} color={isActive('/profile') ? '#16A34A' : '#6B7280'} />
               Profile
             </button>
-
           </div>
 
           {/* Right side */}
