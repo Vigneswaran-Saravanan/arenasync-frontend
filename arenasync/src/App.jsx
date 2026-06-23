@@ -16,6 +16,7 @@ import EditVenuePage from './pages/EditVenue/EditVenuePage'
 import BrowseVenuesPage from './pages/BrowseVenues/BrowseVenuesPage'
 import AdminPage from './pages/Admin/AdminPage'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
+import ProfilePage from './pages/Profile/ProfilePage'
 
 
 
@@ -112,6 +113,13 @@ function App() {
         <Route path="/edit-venue/:id" element={
           <ProtectedRoute role={role} allowedRoles={['Venue Host']}>
             <EditVenuePage role={role} setRole={setRole} />
+          </ProtectedRoute>
+        } />
+
+        {/* Any logged-in user */}
+        <Route path="/profile" element={
+          <ProtectedRoute role={role}>
+            <ProfilePage role={role} setRole={setRole} />
           </ProtectedRoute>
         } />
 
