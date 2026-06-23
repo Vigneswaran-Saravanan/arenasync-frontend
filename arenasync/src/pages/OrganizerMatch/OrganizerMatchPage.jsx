@@ -33,6 +33,14 @@ function OrganizerMatchPage({ role, setRole }) {
   // Action loading for accept/decline buttons
   const [actionLoadingId, setActionLoadingId] = useState(null)
 
+  // Mark as completed loading state
+  const [completingMatch, setCompletingMatch] = useState(false)
+
+  // Attendance state
+  const [attendedIds, setAttendedIds] = useState([])
+  const [submittingAttendance, setSubmittingAttendance] = useState(false)
+  const [attendanceSubmitted, setAttendanceSubmitted] = useState(false)
+
   // Fetch match from backend when page loads
   useEffect(function () {
     fetchMatch()
@@ -111,6 +119,55 @@ function OrganizerMatchPage({ role, setRole }) {
     }
   }
 
+  // Mark match as Completed
+  async function handleMarkCompleted() {
+    setCompletingMatch(true)
+    try {
+      const token = localStorage.getItem('token')
+      await axios.put(
+        'http://localhost:5000/api/matches/' + id,
+        { status: 'Completed' },
+        { headers: { Authorization: 'Bearer ' + token } }
+      )
+      showToast('Match marked as Completed!')
+      await fetchMatch()
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Could not update match status.')
+    } finally {
+      setCompletingMatch(false)
+    }
+  }
+
+  // Toggle a player in the attendance list
+  function toggleAttendance(playerId) {
+    setAttendedIds(function (prev) {
+      if (prev.includes(playerId)) {
+        return prev.filter(function (id) { return id !== playerId })
+      }
+      return [...prev, playerId]
+    })
+  }
+
+  // Submit attendance to backend
+  async function handleSubmitAttendance() {
+    setSubmittingAttendance(true)
+    try {
+      const token = localStorage.getItem('token')
+      await axios.patch(
+        'http://localhost:5000/api/matches/' + id + '/attendance',
+        { attendedPlayerIds: attendedIds },
+        { headers: { Authorization: 'Bearer ' + token } }
+      )
+      showToast('Attendance saved! Player profiles have been updated.')
+      setAttendanceSubmitted(true)
+      await fetchMatch()
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Could not save attendance.')
+    } finally {
+      setSubmittingAttendance(false)
+    }
+  }
+
   function getSkillClass(level) {
     if (level === 'Beginner') return 'skill-badge skill-beginner'
     if (level === 'Intermediate') return 'skill-badge skill-intermediate'
@@ -159,7 +216,12 @@ function OrganizerMatchPage({ role, setRole }) {
 
   // Format date
   const formattedDate = match.date
-    ? new Date(match.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    ? new Date(match.date).toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC'
+      })
     : 'TBD'
 
   return (
@@ -210,18 +272,31 @@ function OrganizerMatchPage({ role, setRole }) {
 
             {!matchCancelled && (
               <div className="org-header-actions">
-                <button
-                  className="btn-edit-match"
-                  onClick={function () { navigate('/edit-match/' + id) }}
-                >
-                  Edit Match
-                </button>
-                <button
-                  className="btn-cancel-match"
-                  onClick={function () { setShowCancelModal(true) }}
-                >
-                  Cancel Match
-                </button>
+                {match.status !== 'Completed' && (
+                  <button
+                    className="btn-edit-match"
+                    onClick={function () { navigate('/edit-match/' + id) }}
+                  >
+                    Edit Match
+                  </button>
+                )}
+                {match.status !== 'Completed' && (
+                  <button
+                    className="btn-complete-match"
+                    onClick={handleMarkCompleted}
+                    disabled={completingMatch}
+                  >
+                    {completingMatch ? 'Updating...' : 'Mark as Completed'}
+                  </button>
+                )}
+                {match.status !== 'Completed' && (
+                  <button
+                    className="btn-cancel-match"
+                    onClick={function () { setShowCancelModal(true) }}
+                  >
+                    Cancel Match
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -241,6 +316,14 @@ function OrganizerMatchPage({ role, setRole }) {
           >
             Player Grid
           </button>
+          {match.status === 'Completed' && (
+            <button
+              className={activeSection === 'attendance' ? 'section-tab-btn active' : 'section-tab-btn'}
+              onClick={function () { setActiveSection('attendance') }}
+            >
+              Mark Attendance
+            </button>
+          )}
         </div>
 
         {/* Join Requests Section */}
@@ -370,6 +453,58 @@ function OrganizerMatchPage({ role, setRole }) {
               })}
 
             </div>
+          </div>
+        )}
+
+        {/* Attendance Section — only shown when match is Completed */}
+        {activeSection === 'attendance' && match.status === 'Completed' && (
+          <div className="section-card">
+            <div className="section-card-header">
+              <h3>Mark Attendance</h3>
+              <span style={{ fontSize: 13, color: '#6B7280' }}>
+                Tick the players who showed up
+              </span>
+            </div>
+
+            {confirmedPlayers.length === 0 ? (
+              <div className="no-requests">No confirmed players to mark attendance for</div>
+            ) : (
+              <>
+                {confirmedPlayers.map(function (player) {
+                  const playerId = player.user?._id || player.user
+                  const name = player.user?.name || 'Player'
+                  const isChecked = attendedIds.includes(playerId?.toString())
+
+                  return (
+                    <div key={playerId} className="attendance-row">
+                      <input
+                        type="checkbox"
+                        className="attendance-checkbox"
+                        checked={isChecked}
+                        onChange={function () { toggleAttendance(playerId?.toString()) }}
+                      />
+                      <div className="request-avatar">{getInitials(name)}</div>
+                      <span className="attendance-name">{name}</span>
+                    </div>
+                  )
+                })}
+
+                <div style={{ marginTop: 20 }}>
+                  <button
+                    className="btn-submit-attendance"
+                    onClick={handleSubmitAttendance}
+                    disabled={submittingAttendance}
+                  >
+                    {submittingAttendance ? 'Saving...' : 'Save Attendance'}
+                  </button>
+                  {attendanceSubmitted && (
+                    <p style={{ fontSize: 13, color: '#16A34A', marginTop: 8, fontWeight: 600 }}>
+                      Attendance saved — player profiles updated.
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         )}
 
