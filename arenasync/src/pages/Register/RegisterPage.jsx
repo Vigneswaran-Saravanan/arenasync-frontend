@@ -7,7 +7,6 @@ function RegisterPage({ setRole }) {
 
     const navigate = useNavigate()
 
-    //Form field value
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -15,17 +14,12 @@ function RegisterPage({ setRole }) {
     const [selectedRole, setSelectedRole] = useState('')
     const [city, setCity] = useState('')
     const [skillLevel, setSkillLevel] = useState('')
+    const [position, setPosition] = useState('')
 
-    // Error messages for each field
     const [errors, setErrors] = useState({})
-
-    // Error message from the server
     const [serverError, setServerError] = useState('')
-
-    // Loading state
     const [loading, setLoading] = useState(false)
 
-    // Validate the form before submitting
     function validate() {
         const newErrors = {}
 
@@ -35,15 +29,13 @@ function RegisterPage({ setRole }) {
 
         if (!email.trim()) {
             newErrors.email = 'Email is required'
-        }
-        else if (!email.includes('@')) {
+        } else if (!email.includes('@')) {
             newErrors.email = 'Please enter a valid email'
         }
 
         if (!password) {
             newErrors.password = 'Password is required'
-        }
-        else if (password.length < 6) {
+        } else if (password.length < 6) {
             newErrors.password = 'Password must be at least 6 characters'
         }
 
@@ -51,26 +43,23 @@ function RegisterPage({ setRole }) {
             newErrors.confirmPassword = 'Passwords do not match'
         }
 
+        if (!selectedRole) {
+            newErrors.role = 'Please select a role'
+        }
+
         return newErrors
     }
 
-    // Handle form submit 
     async function handleSubmit() {
-
-        // Clear previous error
         setServerError('')
 
-        // Validate form
         const newErrors = validate()
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors)
             return
         }
 
-        // Clear field errors
         setErrors({})
-
-        // Show loading
         setLoading(true)
 
         try {
@@ -80,29 +69,26 @@ function RegisterPage({ setRole }) {
                 password,
                 role: selectedRole,
                 city,
-                skillLevel,
+                skillLevel: selectedRole === 'Player' ? skillLevel : '',
+                position: selectedRole === 'Player' ? position : '',
             })
 
-            // Save token to localStorage
-            // This keeps the user logged in after page refresh
             localStorage.setItem('token', response.data.token)
             localStorage.setItem('user', JSON.stringify(response.data.user))
             setRole(response.data.user.role)
 
-            // Redirect to home page
             navigate('/')
         } catch (error) {
-            // Show error from server
             if (error.response && error.response.data.message) {
                 setServerError(error.response.data.message)
             } else {
                 setServerError('Something went wrong. Please try again.')
             }
         } finally {
-            // Hide loading whether success or error
             setLoading(false)
         }
     }
+
     return (
         <div className="register-page">
             <div className="register-card">
@@ -115,13 +101,9 @@ function RegisterPage({ setRole }) {
                                 <circle cx="32" cy="29" r="19" />
                             </clipPath>
                         </defs>
-
                         <path d="M32 3C17 3 5 15 5 30C5 42 12.5 52 22 60L32 73L42 60C51.5 52 59 42 59 30C59 15 47 3 32 3Z" fill="#16A34A" />
-
                         <circle cx="32" cy="29" r="20.5" fill="none" stroke="white" strokeWidth="1.7" />
-
                         <circle cx="32" cy="29" r="19" fill="#16A34A" />
-
                         <g clipPath="url(#field)" fill="none" stroke="white" strokeWidth="0.9"
                             strokeLinecap="round" strokeLinejoin="round">
                             <rect x="14" y="9" width="36" height="40" />
@@ -142,7 +124,6 @@ function RegisterPage({ setRole }) {
                 <h1 className="register-heading">Create Your Account</h1>
                 <p className="register-subheading">Join your local soccer community</p>
 
-                {/* Server error banner */}
                 {serverError && (
                     <div className="error-banner">{serverError}</div>
                 )}
@@ -201,7 +182,33 @@ function RegisterPage({ setRole }) {
                     )}
                 </div>
 
-                {/* City */}
+                {/* Role — moved up so form adapts below it */}
+                <div className="form-group">
+                    <label className="form-label">I am a...</label>
+                    <div className="role-pills">
+                        {['Player', 'Organizer', 'Venue Host'].map(function (r) {
+                            return (
+                                <button
+                                    key={r}
+                                    className={selectedRole === r ? 'role-pill active' : 'role-pill'}
+                                    onClick={function () {
+                                        setSelectedRole(r)
+                                        // Clear player-only fields when switching away from Player
+                                        if (r !== 'Player') {
+                                            setSkillLevel('')
+                                            setPosition('')
+                                        }
+                                    }}
+                                >
+                                    {r}
+                                </button>
+                            )
+                        })}
+                    </div>
+                    {errors.role && <p className="form-error">{errors.role}</p>}
+                </div>
+
+                {/* City — shown for all roles */}
                 <div className="form-group">
                     <label className="form-label">City</label>
                     <input
@@ -213,41 +220,45 @@ function RegisterPage({ setRole }) {
                     />
                 </div>
 
-                {/* Skill Level */}
-                <div className="form-group">
-                    <label className="form-label">Skill Level</label>
-                    <div className="skill-pills">
-                        {['Beginner', 'Intermediate', 'Advanced'].map(function (level) {
-                            return (
-                                <button
-                                    key={level}
-                                    className={skillLevel === level ? 'skill-pill active' : 'skill-pill'}
-                                    onClick={function () { setSkillLevel(level) }}
-                                >
-                                    {level}
-                                </button>
-                            )
-                        })}
+                {/* Position — Player only */}
+                {selectedRole === 'Player' && (
+                    <div className="form-group">
+                        <label className="form-label">Position</label>
+                        <div className="skill-pills">
+                            {['Goalkeeper', 'Defender', 'Midfielder', 'Forward'].map(function (pos) {
+                                return (
+                                    <button
+                                        key={pos}
+                                        className={position === pos ? 'skill-pill active' : 'skill-pill'}
+                                        onClick={function () { setPosition(pos) }}
+                                    >
+                                        {pos}
+                                    </button>
+                                )
+                            })}
+                        </div>
                     </div>
-                </div>
+                )}
 
-                {/* Role */}
-                <div className="form-group">
-                    <label className="form-label">I am a...</label>
-                    <div className="role-pills">
-                        {['Player', 'Organizer', 'Venue Host'].map(function (r) {
-                            return (
-                                <button
-                                    key={r}
-                                    className={selectedRole === r ? 'role-pill active' : 'role-pill'}
-                                    onClick={function () { setSelectedRole(r) }}
-                                >
-                                    {r}
-                                </button>
-                            )
-                        })}
+                {/* Skill Level — Player only */}
+                {selectedRole === 'Player' && (
+                    <div className="form-group">
+                        <label className="form-label">Skill Level</label>
+                        <div className="skill-pills">
+                            {['Beginner', 'Intermediate', 'Advanced'].map(function (level) {
+                                return (
+                                    <button
+                                        key={level}
+                                        className={skillLevel === level ? 'skill-pill active' : 'skill-pill'}
+                                        onClick={function () { setSkillLevel(level) }}
+                                    >
+                                        {level}
+                                    </button>
+                                )
+                            })}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Submit */}
                 <button
