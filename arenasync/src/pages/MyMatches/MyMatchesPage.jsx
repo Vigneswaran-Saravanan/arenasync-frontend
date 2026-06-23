@@ -271,7 +271,7 @@ function MyMatchesPage({ role, setRole }) {
                     const myEntry = match.players?.find(function (p) {
                       return (p.user?._id?.toString() || p.user?.toString()) === currentUserId?.toString()
                     })
-                    const attended = myEntry?.status === 'confirmed'
+                    const attended = myEntry?.attended === true
 
                     return (
                       <div key={match._id} className="match-row-card">
