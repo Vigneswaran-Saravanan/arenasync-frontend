@@ -120,12 +120,16 @@
 .skill-pills {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
+
 .skill-pill {
-  flex: 1;
-  padding: 8px;
+  flex: 1 1 calc(25% - 8px);
+  min-width: 120px;
+  padding: 8px 10px;
   border-radius: 8px;
+  white-space: nowrap;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
