@@ -15,6 +15,7 @@ function ProfilePage({ role, setRole }) {
 
     // Edit mode state
     const [isEditing, setIsEditing] = useState(false)
+    const [editName, setEditName] = useState('')
     const [editCity, setEditCity] = useState('')
     const [editPosition, setEditPosition] = useState('')
     const [editSkillLevel, setEditSkillLevel] = useState('')
@@ -43,6 +44,7 @@ function ProfilePage({ role, setRole }) {
 
     // Open the edit form pre-filled with current values
     function handleEditClick() {
+        setEditName(profile.name || '')
         setEditCity(profile.city || '')
         setEditPosition(profile.position || '')
         setEditSkillLevel(profile.skillLevel || '')
@@ -59,6 +61,7 @@ function ProfilePage({ role, setRole }) {
             const res = await axios.put(
                 'http://localhost:5000/api/users/profile',
                 {
+                    name: editName,
                     city: editCity,
                     position: editPosition,
                     skillLevel: editSkillLevel
@@ -168,6 +171,18 @@ function ProfilePage({ role, setRole }) {
                         {saveError && (
                             <p style={{ color: '#DC2626', fontSize: 13, marginBottom: 12 }}>{saveError}</p>
                         )}
+
+                        <div className="profile-edit-group">
+                            <label className="profile-edit-label">Full Name</label>
+                            <input
+                                type="text"
+                                className="profile-edit-input"
+                                placeholder="Your full name"
+                                value={editName}
+                                onChange={function (e) { setEditName(e.target.value) }}
+                            />
+                        </div>
+
 
                         <div className="profile-edit-group">
                             <label className="profile-edit-label">City</label>
