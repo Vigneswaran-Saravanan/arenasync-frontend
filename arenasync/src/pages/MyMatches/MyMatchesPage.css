@@ -201,3 +201,20 @@
 .btn-find-match:hover {
   background: var(--green-dark);
 }
+
+/* Today's match hint banner */
+.today-hint {
+  background: #FEF9C3;
+  border: 1px solid #FDE68A;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #92400E;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* Today's match card gets a green left border */
+.match-today {
+  border-left: 3px solid var(--green);
+}
