@@ -82,15 +82,15 @@ function MyMatchesPage({ role, setRole }) {
 
   // Check if a match is today
   function isToday(dateStr) {
+    // Use UTC date parts to avoid timezone shift
     const matchDate = new Date(dateStr)
     const today = new Date()
     return (
-      matchDate.getFullYear() === today.getFullYear() &&
-      matchDate.getMonth() === today.getMonth() &&
-      matchDate.getDate() === today.getDate()
+      matchDate.getUTCFullYear() === today.getUTCFullYear() &&
+      matchDate.getUTCMonth() === today.getUTCMonth() &&
+      matchDate.getUTCDate() === today.getUTCDate()
     )
   }
-
   async function handleCancelRequest(matchId) {
     try {
       const token = localStorage.getItem('token')
@@ -111,7 +111,12 @@ function MyMatchesPage({ role, setRole }) {
 
   function formatDate(dateStr) {
     if (!dateStr) return 'TBD'
-    return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      timeZone: 'UTC'
+    })
   }
 
   if (loading) {
@@ -169,47 +174,92 @@ function MyMatchesPage({ role, setRole }) {
                     showBtn={false}
                   />
                 ) : (
-                  organizerUpcoming.map(function (match) {
-                    const today = isToday(match.date)
-                    return (
-                      <div key={match._id}>
-                        {/* Today hint */}
-                        {today && (
-                          <div className="today-hint">
-                            This match is today — after it ends, go to Manage and mark it as Completed, then record attendance for your players.
-                          </div>
-                        )}
-                        <div className={today ? 'match-row-card match-today' : 'match-row-card'}>
-                          <div className="match-row-info">
-                            <h3 className="match-row-title">{match.title}</h3>
-                            <p className="match-row-venue">{match.venue}</p>
-                            <div className="match-row-meta">
-                              <span>
-                                <IconCalendar size={12} color="#9CA3AF" />
-                                {formatDate(match.date)}
-                              </span>
-                              <span>
-                                <IconClock size={12} color="#9CA3AF" />
-                                {match.time}
-                              </span>
-                              <span className={getSkillClass(match.skillLevel)}>
-                                {match.skillLevel}
-                              </span>
+                  <>
+                    {/* Today's matches */}
+                    {organizerUpcoming.filter(function (m) { return isToday(m.date) }).length > 0 && (
+                      <div className="matches-section">
+                        <p className="matches-section-label">Today</p>
+                        {organizerUpcoming.filter(function (m) { return isToday(m.date) }).map(function (match) {
+                          return (
+                            <div key={match._id}>
+                              <div className="today-hint">
+                                This match is today — after it ends, go to Manage and mark it as Completed, then record attendance for your players.
+                              </div>
+                              <div className="match-row-card match-today">
+                                <div className="match-row-info">
+                                  <h3 className="match-row-title">{match.title}</h3>
+                                  <p className="match-row-venue">{match.venue}</p>
+                                  <div className="match-row-meta">
+                                    <span>
+                                      <IconCalendar size={12} color="#9CA3AF" />
+                                      {formatDate(match.date)}
+                                    </span>
+                                    <span>
+                                      <IconClock size={12} color="#9CA3AF" />
+                                      {match.time}
+                                    </span>
+                                    <span className={getSkillClass(match.skillLevel)}>
+                                      {match.skillLevel}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="match-row-actions">
+                                  <span className="status-badge status-confirmed">{match.status}</span>
+                                  <button
+                                    className="btn-view-match"
+                                    onClick={function () { navigate('/organizer-match/' + match._id) }}
+                                  >
+                                    Manage
+                                  </button>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                          <div className="match-row-actions">
-                            <span className="status-badge status-confirmed">{match.status}</span>
-                            <button
-                              className="btn-view-match"
-                              onClick={function () { navigate('/organizer-match/' + match._id) }}
-                            >
-                              Manage
-                            </button>
-                          </div>
-                        </div>
+                          )
+                        })}
                       </div>
-                    )
-                  })
+                    )}
+
+                    {/* Future matches */}
+                    {organizerUpcoming.filter(function (m) { return !isToday(m.date) }).length > 0 && (
+                      <div className="matches-section">
+                        {organizerUpcoming.filter(function (m) { return isToday(m.date) }).length > 0 && (
+                          <p className="matches-section-label">Coming Up</p>
+                        )}
+                        {organizerUpcoming.filter(function (m) { return !isToday(m.date) }).map(function (match) {
+                          return (
+                            <div key={match._id} className="match-row-card">
+                              <div className="match-row-info">
+                                <h3 className="match-row-title">{match.title}</h3>
+                                <p className="match-row-venue">{match.venue}</p>
+                                <div className="match-row-meta">
+                                  <span>
+                                    <IconCalendar size={12} color="#9CA3AF" />
+                                    {formatDate(match.date)}
+                                  </span>
+                                  <span>
+                                    <IconClock size={12} color="#9CA3AF" />
+                                    {match.time}
+                                  </span>
+                                  <span className={getSkillClass(match.skillLevel)}>
+                                    {match.skillLevel}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="match-row-actions">
+                                <span className="status-badge status-confirmed">{match.status}</span>
+                                <button
+                                  className="btn-view-match"
+                                  onClick={function () { navigate('/organizer-match/' + match._id) }}
+                                >
+                                  Manage
+                                </button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
