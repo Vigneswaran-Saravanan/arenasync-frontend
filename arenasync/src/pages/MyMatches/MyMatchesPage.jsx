@@ -12,40 +12,35 @@ function MyMatchesPage({ role, setRole }) {
 
   const navigate = useNavigate()
 
-  // Active tab state
   const [activeTab, setActiveTab] = useState('upcoming')
 
-  // Real matches from backend
   const [matches, setMatches] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Matches this user created as organizer
+  // All matches the organizer created (all statuses)
   const [myCreatedMatches, setMyCreatedMatches] = useState([])
 
-  // Get logged in user id to find their player entry status in each match
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
   const currentUserId = currentUser.id || currentUser._id
 
-  // Fetch matches the player has joined when page loads
   useEffect(function () {
     async function fetchMyMatches() {
       try {
         const token = localStorage.getItem('token')
 
-        // Matches the player has joined
-        const res = await axios.get('http://localhost:5000/api/matches/my-matches', {
-          headers: { Authorization: 'Bearer ' + token }
-        })
-        setMatches(res.data.matches)
-
-        // Matches this user created as organizer
         if (role === 'Organizer') {
-          const allRes = await axios.get('http://localhost:5000/api/matches')
-          const created = allRes.data.matches.filter(function (m) {
-            return (m.organizer?._id || m.organizer) === currentUserId
+          // Use the new endpoint that returns ALL statuses
+          const res = await axios.get('http://localhost:5000/api/matches/my-created', {
+            headers: { Authorization: 'Bearer ' + token }
           })
-          setMyCreatedMatches(created)
+          setMyCreatedMatches(res.data.matches)
+        } else {
+          // Player — fetch matches they joined
+          const res = await axios.get('http://localhost:5000/api/matches/my-matches', {
+            headers: { Authorization: 'Bearer ' + token }
+          })
+          setMatches(res.data.matches)
         }
 
       } catch (err) {
@@ -57,7 +52,7 @@ function MyMatchesPage({ role, setRole }) {
     fetchMyMatches()
   }, [])
 
-  // Format matches into the three tabs based on player status and match status
+  // Player tabs
   const upcomingMatches = matches.filter(function (m) {
     const myEntry = m.players?.find(function (p) {
       return (p.user?._id?.toString() || p.user?.toString()) === currentUserId?.toString()
@@ -76,28 +71,44 @@ function MyMatchesPage({ role, setRole }) {
     return m.status === 'Completed'
   })
 
-  // Cancel a pending request — calls backend leave API
+  // Organizer tabs
+  const organizerUpcoming = myCreatedMatches.filter(function (m) {
+    return m.status === 'Upcoming' || m.status === 'Ongoing'
+  })
+
+  const organizerCompleted = myCreatedMatches.filter(function (m) {
+    return m.status === 'Completed' || m.status === 'Cancelled'
+  })
+
+  // Check if a match is today
+  function isToday(dateStr) {
+    const matchDate = new Date(dateStr)
+    const today = new Date()
+    return (
+      matchDate.getFullYear() === today.getFullYear() &&
+      matchDate.getMonth() === today.getMonth() &&
+      matchDate.getDate() === today.getDate()
+    )
+  }
+
   async function handleCancelRequest(matchId) {
     try {
       const token = localStorage.getItem('token')
       await axios.delete('http://localhost:5000/api/matches/' + matchId + '/leave', {
         headers: { Authorization: 'Bearer ' + token }
       })
-      // Remove it from local state immediately
       setMatches(matches.filter(function (m) { return m._id !== matchId }))
     } catch (err) {
       alert(err.response?.data?.message || 'Could not cancel request.')
     }
   }
 
-  // Skill badge class
   function getSkillClass(level) {
     if (level === 'Beginner') return 'skill-badge skill-beginner'
     if (level === 'Intermediate') return 'skill-badge skill-intermediate'
     return 'skill-badge skill-advanced'
   }
 
-  // Format date helper
   function formatDate(dateStr) {
     if (!dateStr) return 'TBD'
     return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
@@ -128,9 +139,132 @@ function MyMatchesPage({ role, setRole }) {
           <p style={{ color: '#DC2626', marginBottom: 16 }}>{error}</p>
         )}
 
+        {/* ── ORGANIZER VIEW ── */}
+        {role === 'Organizer' && (
+          <>
+            <div className="tab-bar">
+              <button
+                className={activeTab === 'upcoming' ? 'tab-btn active' : 'tab-btn'}
+                onClick={function () { setActiveTab('upcoming') }}
+              >
+                Upcoming
+                <span className="tab-count">{organizerUpcoming.length}</span>
+              </button>
+              <button
+                className={activeTab === 'completed' ? 'tab-btn active' : 'tab-btn'}
+                onClick={function () { setActiveTab('completed') }}
+              >
+                Completed
+                <span className="tab-count">{organizerCompleted.length}</span>
+              </button>
+            </div>
+
+            {/* Organizer Upcoming tab */}
+            {activeTab === 'upcoming' && (
+              <div>
+                {organizerUpcoming.length === 0 ? (
+                  <EmptyState
+                    message="No upcoming matches"
+                    sub="Create a match to get started"
+                    showBtn={false}
+                  />
+                ) : (
+                  organizerUpcoming.map(function (match) {
+                    const today = isToday(match.date)
+                    return (
+                      <div key={match._id}>
+                        {/* Today hint */}
+                        {today && (
+                          <div className="today-hint">
+                            This match is today — after it ends, go to Manage and mark it as Completed, then record attendance for your players.
+                          </div>
+                        )}
+                        <div className={today ? 'match-row-card match-today' : 'match-row-card'}>
+                          <div className="match-row-info">
+                            <h3 className="match-row-title">{match.title}</h3>
+                            <p className="match-row-venue">{match.venue}</p>
+                            <div className="match-row-meta">
+                              <span>
+                                <IconCalendar size={12} color="#9CA3AF" />
+                                {formatDate(match.date)}
+                              </span>
+                              <span>
+                                <IconClock size={12} color="#9CA3AF" />
+                                {match.time}
+                              </span>
+                              <span className={getSkillClass(match.skillLevel)}>
+                                {match.skillLevel}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="match-row-actions">
+                            <span className="status-badge status-confirmed">{match.status}</span>
+                            <button
+                              className="btn-view-match"
+                              onClick={function () { navigate('/organizer-match/' + match._id) }}
+                            >
+                              Manage
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+            )}
+
+            {/* Organizer Completed tab */}
+            {activeTab === 'completed' && (
+              <div>
+                {organizerCompleted.length === 0 ? (
+                  <EmptyState
+                    message="No completed matches"
+                    sub="Your finished matches will appear here"
+                    showBtn={false}
+                  />
+                ) : (
+                  organizerCompleted.map(function (match) {
+                    return (
+                      <div key={match._id} className="match-row-card">
+                        <div className="match-row-info">
+                          <h3 className="match-row-title">{match.title}</h3>
+                          <p className="match-row-venue">{match.venue}</p>
+                          <div className="match-row-meta">
+                            <span>
+                              <IconCalendar size={12} color="#9CA3AF" />
+                              {formatDate(match.date)}
+                            </span>
+                            <span>
+                              <IconClock size={12} color="#9CA3AF" />
+                              {match.time}
+                            </span>
+                            <span className={getSkillClass(match.skillLevel)}>
+                              {match.skillLevel}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="match-row-actions">
+                          <span className="status-badge status-completed">{match.status}</span>
+                          <button
+                            className="btn-view-match"
+                            onClick={function () { navigate('/organizer-match/' + match._id) }}
+                          >
+                            Manage
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ── PLAYER VIEW ── */}
         {role !== 'Organizer' && (
           <>
-            {/* Tab bar */}
             <div className="tab-bar">
               <button
                 className={activeTab === 'upcoming' ? 'tab-btn active' : 'tab-btn'}
@@ -139,7 +273,6 @@ function MyMatchesPage({ role, setRole }) {
                 Upcoming
                 <span className="tab-count">{upcomingMatches.length}</span>
               </button>
-
               <button
                 className={activeTab === 'pending' ? 'tab-btn active' : 'tab-btn'}
                 onClick={function () { setActiveTab('pending') }}
@@ -147,7 +280,6 @@ function MyMatchesPage({ role, setRole }) {
                 Pending
                 <span className="tab-count">{pendingMatches.length}</span>
               </button>
-
               <button
                 className={activeTab === 'completed' ? 'tab-btn active' : 'tab-btn'}
                 onClick={function () { setActiveTab('completed') }}
@@ -171,7 +303,6 @@ function MyMatchesPage({ role, setRole }) {
                   upcomingMatches.map(function (match) {
                     return (
                       <div key={match._id} className="match-row-card">
-
                         <div className="match-row-info">
                           <h3 className="match-row-title">{match.title}</h3>
                           <p className="match-row-venue">{match.venue}</p>
@@ -189,7 +320,6 @@ function MyMatchesPage({ role, setRole }) {
                             </span>
                           </div>
                         </div>
-
                         <div className="match-row-actions">
                           <span className="status-badge status-confirmed">Confirmed</span>
                           <button
@@ -199,7 +329,6 @@ function MyMatchesPage({ role, setRole }) {
                             View Match
                           </button>
                         </div>
-
                       </div>
                     )
                   })
@@ -221,7 +350,6 @@ function MyMatchesPage({ role, setRole }) {
                   pendingMatches.map(function (match) {
                     return (
                       <div key={match._id} className="match-row-card">
-
                         <div className="match-row-info">
                           <h3 className="match-row-title">{match.title}</h3>
                           <p className="match-row-venue">{match.venue}</p>
@@ -239,7 +367,6 @@ function MyMatchesPage({ role, setRole }) {
                             </span>
                           </div>
                         </div>
-
                         <div className="match-row-actions">
                           <span className="status-badge status-pending">Pending Approval</span>
                           <button
@@ -249,7 +376,6 @@ function MyMatchesPage({ role, setRole }) {
                             Cancel Request
                           </button>
                         </div>
-
                       </div>
                     )
                   })
@@ -275,7 +401,6 @@ function MyMatchesPage({ role, setRole }) {
 
                     return (
                       <div key={match._id} className="match-row-card">
-
                         <div className="match-row-info">
                           <h3 className="match-row-title">{match.title}</h3>
                           <p className="match-row-venue">{match.venue}</p>
@@ -293,7 +418,6 @@ function MyMatchesPage({ role, setRole }) {
                             </span>
                           </div>
                         </div>
-
                         <div className="match-row-actions">
                           <span className="status-badge status-completed">Completed</span>
                           {attended
@@ -301,56 +425,13 @@ function MyMatchesPage({ role, setRole }) {
                             : <span className="status-badge status-absent">Absent</span>
                           }
                         </div>
-
                       </div>
                     )
                   })
                 )}
               </div>
-  
             )}
-            </>
-        )}
-  
-        
-        {/* Matches I Created — only shown for Organizers */}
-        {role === 'Organizer' && myCreatedMatches.length > 0 && (
-          <div style={{ marginTop: 32 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 16 }}>
-              Matches I Created
-            </h2>
-            {myCreatedMatches.map(function (match) {
-              return (
-                <div key={match._id} className="match-row-card">
-                  <div className="match-row-info">
-                    <h3 className="match-row-title">{match.title}</h3>
-                    <p className="match-row-venue">{match.venue}</p>
-                    <div className="match-row-meta">
-                      <span>
-                        <IconCalendar size={12} color="#9CA3AF" />
-                        {formatDate(match.date)}
-                      </span>
-                      <span>
-                        <IconClock size={12} color="#9CA3AF" />
-                        {match.time}
-                      </span>
-                      <span className={getSkillClass(match.skillLevel)}>
-                        {match.skillLevel}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="match-row-actions">
-                    <button
-                      className="btn-view-match"
-                      onClick={function () { navigate('/organizer-match/' + match._id) }}
-                    >
-                      Manage
-                    </button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+          </>
         )}
 
       </div>
@@ -363,8 +444,6 @@ function MyMatchesPage({ role, setRole }) {
 
 export default MyMatchesPage
 
-
-// Empty state component
 function EmptyState({ message, sub, showBtn, onBtnClick }) {
   return (
     <div className="tab-empty">
