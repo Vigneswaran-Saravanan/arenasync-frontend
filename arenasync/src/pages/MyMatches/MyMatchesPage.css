@@ -218,3 +218,17 @@
 .match-today {
   border-left: 3px solid var(--green);
 }
+
+/* Section label for Today / Coming Up */
+.matches-section {
+  margin-bottom: 24px;
+}
+
+.matches-section-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
