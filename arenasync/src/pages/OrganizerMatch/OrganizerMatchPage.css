@@ -413,3 +413,63 @@
   font-size: 14px;
   margin-bottom: 16px;
 }
+
+/* Mark as Completed button */
+.btn-complete-match {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #16A34A;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-complete-match:disabled {
+  background: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Attendance row */
+.attendance-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.attendance-row:last-of-type {
+  border-bottom: none;
+}
+
+.attendance-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #16A34A;
+  cursor: pointer;
+}
+
+.attendance-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+/* Submit attendance button */
+.btn-submit-attendance {
+  background: #16A34A;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-submit-attendance:disabled {
+  background: var(--muted);
+  cursor: not-allowed;
+}
