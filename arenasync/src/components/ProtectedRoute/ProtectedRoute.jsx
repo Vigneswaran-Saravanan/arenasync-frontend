@@ -5,7 +5,7 @@ function ProtectedRoute({ children, role, allowedRoles }) {
 
   // If no token, send them to login
   if (!token) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/" replace />
   }
 
   // If this route has role restrictions, check the user's role
