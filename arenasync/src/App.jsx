@@ -17,8 +17,9 @@ import BrowseVenuesPage from './pages/BrowseVenues/BrowseVenuesPage'
 import AdminPage from './pages/Admin/AdminPage'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 import ProfilePage from './pages/Profile/ProfilePage'
-
-
+import LandingPage from './pages/Landing/LandingPage'
+import AboutPage from './pages/About/AboutPage'
+import ContactPage from './pages/Contact/ContactPage'
 
 function App() {
 
@@ -27,21 +28,22 @@ function App() {
   const storedUser = localStorage.getItem('user')
   const initialUser = storedUser ? JSON.parse(storedUser) : null
 
-  // Role comes form the logged-in user, default to 'Player' 
-  const [role, setRole] = useState(initialUser ? initialUser.role : 'Player')
-
-
+  // Role comes from the logged-in user, defaults to null for guests
+  const [role, setRole] = useState(initialUser ? initialUser.role : null)
 
   return (
     <BrowserRouter>
       <Routes>
 
         {/* Public routes — no login required */}
+        <Route path="/" element={<LandingPage role={role} />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/register" element={<RegisterPage setRole={setRole} />} />
         <Route path="/login" element={<LoginPage setRole={setRole} />} />
 
         {/* Any logged-in user */}
-        <Route path="/" element={
+        <Route path="/home" element={
           <ProtectedRoute role={role}>
             <HomePage role={role} setRole={setRole} />
           </ProtectedRoute>
