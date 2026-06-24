@@ -50,6 +50,7 @@ function CreateMatchPage({ role, setRole }) {
     const newErrors = {}
     if (!title.trim()) newErrors.title = 'Match title is required'
     if (!venue.trim()) newErrors.venue = 'Venue name is required'
+    if (!address.trim()) newErrors.address = 'Address is required'
     if (!date) newErrors.date = 'Date is required'
     if (!time) newErrors.time = 'Time is required'
     if (!skillLevel) newErrors.skillLevel = 'Please select a skill level'
@@ -270,15 +271,16 @@ function CreateMatchPage({ role, setRole }) {
 
           {/* Address */}
           <div className="form-group">
-            <label className="form-label">Address</label>
+            <label className="form-label">Address <span style={{ color: '#DC2626' }}>*</span></label>
             <input
               type="text"
-              className="form-input"
+              className={errors.address ? 'form-input error' : 'form-input'}
               placeholder="Street address, Toronto"
               value={address}
               disabled={!!selectedVenue}
               onChange={function (e) { setAddress(e.target.value) }}
             />
+            {errors.address && <p className="form-error">{errors.address}</p>}
           </div>
 
           {/* Date and Time */}
