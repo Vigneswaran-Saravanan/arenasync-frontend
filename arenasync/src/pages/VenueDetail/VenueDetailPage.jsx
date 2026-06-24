@@ -5,6 +5,8 @@ import './VenueDetailPage.css'
 import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 function VenueDetailPage({ role, setRole }) {
 
   const { id } = useParams()
@@ -22,7 +24,7 @@ function VenueDetailPage({ role, setRole }) {
 
   async function fetchVenue() {
     try {
-      const res = await axios.get('http://localhost:5000/api/venues/' + id)
+      const res = await axios.get(API_URL + '/api/venues/' + id)
       setVenue(res.data.venue)
       setBookings(res.data.bookings || [])
     } catch (err) {
@@ -35,7 +37,7 @@ function VenueDetailPage({ role, setRole }) {
   async function handleDelete() {
     try {
       const token = localStorage.getItem('token')
-      await axios.delete('http://localhost:5000/api/venues/' + id, {
+      await axios.delete(API_URL + '/api/venues/' + id, {
         headers: { Authorization: 'Bearer ' + token }
       })
       navigate('/my-venues')
