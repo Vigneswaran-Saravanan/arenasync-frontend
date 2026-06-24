@@ -9,6 +9,7 @@ import IconCalendar from '../../components/icons/IconCalendar'
 import IconClock from '../../components/icons/IconClock'
 import IconUser from '../../components/icons/IconUser'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 function HomePage({ role, setRole }) {
 
@@ -30,7 +31,7 @@ function HomePage({ role, setRole }) {
     async function fetchMatches() {
       try {
         setLoading(true)
-        const response = await axios.get('http://localhost:5000/api/matches')
+        const response = await axios.get(API_URL + '/api/matches')
         setMatches(response.data.matches)
       } catch (err) {
         setError('Failed to load matches. Please try again.')
