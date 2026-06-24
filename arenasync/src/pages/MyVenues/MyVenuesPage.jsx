@@ -6,6 +6,8 @@ import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
 import IconLocation from '../../components/icons/IconLocation'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 function MyVenuesPage({ role, setRole }) {
 
   const navigate = useNavigate()
@@ -19,7 +21,7 @@ function MyVenuesPage({ role, setRole }) {
       try {
         const token = localStorage.getItem('token')
 
-        const res = await axios.get('http://localhost:5000/api/venues/my-venues', {
+        const res = await axios.get(API_URL + '/api/venues/my-venues', {
           headers: { Authorization: 'Bearer ' + token }
         })
         setVenues(res.data.venues)
