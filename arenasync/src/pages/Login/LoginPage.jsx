@@ -55,7 +55,8 @@ function LoginPage({ setRole }) {
             navigate(
                 response.data.user.role === 'Organizer' ? '/my-matches' :
                 response.data.user.role === 'Venue Host' ? '/my-venues' :
-                '/'
+                response.data.user.role === 'Admin' ? '/admin' :
+                '/home'
             )
 
         } catch (error) {
