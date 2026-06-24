@@ -5,6 +5,8 @@ import './BrowseVenuesPage.css'
 import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 function BrowseVenuesPage({ role, setRole }) {
 
     const navigate = useNavigate()
@@ -16,7 +18,7 @@ function BrowseVenuesPage({ role, setRole }) {
     useEffect(function () {
         async function fetchVenues() {
             try {
-                const res = await axios.get('http://localhost:5000/api/venues')
+                const res = await axios.get(API_URL + '/api/venues')
                 setVenues(res.data.venues)
             } catch (err) {
                 setError('Could not load venues.')
