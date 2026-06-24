@@ -134,7 +134,7 @@ function RegisterPage({ setRole }) {
 
                 {/* Full Name */}
                 <div className="form-group">
-                    <label className="form-label">Full Name</label>
+                    <label className="form-label">Full Name <span style={{ color: '#DC2626' }}>*</span></label>
                     <input
                         type="text"
                         className={errors.name ? 'form-input error' : 'form-input'}
@@ -147,7 +147,7 @@ function RegisterPage({ setRole }) {
 
                 {/* Email */}
                 <div className="form-group">
-                    <label className="form-label">Email</label>
+                    <label className="form-label">Email <span style={{ color: '#DC2626' }}>*</span></label>
                     <input
                         type="email"
                         className={errors.email ? 'form-input error' : 'form-input'}
@@ -160,7 +160,7 @@ function RegisterPage({ setRole }) {
 
                 {/* Password */}
                 <div className="form-group">
-                    <label className="form-label">Password</label>
+                    <label className="form-label">Password <span style={{ color: '#DC2626' }}>*</span></label>
                     <input
                         type="password"
                         className={errors.password ? 'form-input error' : 'form-input'}
@@ -173,7 +173,7 @@ function RegisterPage({ setRole }) {
 
                 {/* Confirm Password */}
                 <div className="form-group">
-                    <label className="form-label">Confirm Password</label>
+                    <label className="form-label">Confirm Password <span style={{ color: '#DC2626' }}>*</span></label>
                     <input
                         type="password"
                         className={errors.confirmPassword ? 'form-input error' : 'form-input'}
@@ -188,7 +188,7 @@ function RegisterPage({ setRole }) {
 
                 {/* Role — moved up so form adapts below it */}
                 <div className="form-group">
-                    <label className="form-label">I am a...</label>
+                    <label className="form-label">I am a... <span style={{ color: '#DC2626' }}>*</span></label>
                     <div className="role-pills">
                         {['Player', 'Organizer', 'Venue Host'].map(function (r) {
                             return (
@@ -263,6 +263,11 @@ function RegisterPage({ setRole }) {
                         </div>
                     </div>
                 )}
+
+                {/* Required note */}
+                <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 8 }}>
+                    <span style={{ color: '#DC2626' }}>*</span> Required field
+                </p>
 
                 {/* Submit */}
                 <button
