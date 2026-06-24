@@ -102,8 +102,7 @@ function LandingPage({ role }) {
               </button>
             </div>
 
-            <div className="landing-role-card landing-role-card-featured">
-              <div className="landing-role-featured-tag">Most Popular</div>
+            <div className="landing-role-card">
               <div className="landing-role-icon landing-role-icon-organizer">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <rect x="3" y="4" width="18" height="16" rx="2" stroke="white" strokeWidth="2" />
