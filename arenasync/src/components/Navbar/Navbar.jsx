@@ -9,6 +9,8 @@ import IconUser from '../icons/IconUser'
 import IconPlus from '../icons/IconPlus'
 import IconBuilding from '../icons/IconBuilding'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 function Navbar({ role, setRole }) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -55,7 +57,7 @@ function Navbar({ role, setRole }) {
         const token = localStorage.getItem('token')
         if (!token) return
 
-        const res = await axios.get('http://localhost:5000/api/notifications', {
+        const res = await axios.get(API_URL + '/api/notifications', {
           headers: { Authorization: 'Bearer ' + token }
         })
         setNotifs(res.data)
@@ -79,7 +81,7 @@ function Navbar({ role, setRole }) {
       try {
         const token = localStorage.getItem('token')
 
-        await axios.patch('http://localhost:5000/api/notifications/mark-all-read', {}, {
+        await axios.patch(API_URL + '/api/notifications/mark-all-read', {}, {
           headers: { Authorization: 'Bearer ' + token }
         })
 
@@ -99,7 +101,7 @@ function Navbar({ role, setRole }) {
       const token = localStorage.getItem('token')
 
       await axios.put(
-        'http://localhost:5000/api/matches/' + notif.matchId + '/players/' + notif.senderId,
+        API_URL + '/api/matches/' + notif.matchId + '/players/' + notif.senderId,
         { action: 'confirmed' },
         { headers: { Authorization: 'Bearer ' + token } }
       )
@@ -110,7 +112,7 @@ function Navbar({ role, setRole }) {
       try {
         const token = localStorage.getItem('token')
         await axios.delete(
-          'http://localhost:5000/api/notifications/' + notif._id,
+          API_URL + '/api/notifications/' + notif._id,
           { headers: { Authorization: 'Bearer ' + token } }
         )
       } catch (err) {
@@ -126,7 +128,7 @@ function Navbar({ role, setRole }) {
       const token = localStorage.getItem('token')
 
       await axios.put(
-        'http://localhost:5000/api/matches/' + notif.matchId + '/players/' + notif.senderId,
+         API_URL + '/api/matches/' + notif.matchId + '/players/' + notif.senderId,
         { action: 'declined' },
         { headers: { Authorization: 'Bearer ' + token } }
       )
@@ -137,7 +139,7 @@ function Navbar({ role, setRole }) {
       try {
         const token = localStorage.getItem('token')
         await axios.delete(
-          'http://localhost:5000/api/notifications/' + notif._id,
+           API_URL + '/api/notifications/' + notif._id,
           { headers: { Authorization: 'Bearer ' + token } }
         )
       } catch (err) {
