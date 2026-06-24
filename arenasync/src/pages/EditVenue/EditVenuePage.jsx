@@ -5,6 +5,8 @@ import './EditVenuePage.css'
 import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 function EditVenuePage({ role, setRole }) {
 
   const navigate = useNavigate()
@@ -32,7 +34,7 @@ function EditVenuePage({ role, setRole }) {
   useEffect(function () {
     async function fetchVenue() {
       try {
-        const res = await axios.get('http://localhost:5000/api/venues/' + id)
+        const res = await axios.get(API_URL + '/api/venues/' + id)
         const venue = res.data.venue
 
         setName(venue.name || '')
@@ -80,7 +82,7 @@ function EditVenuePage({ role, setRole }) {
       const token = localStorage.getItem('token')
 
       await axios.put(
-        'http://localhost:5000/api/venues/' + id,
+        API_URL + '/api/venues/' + id,
         {
           name,
           address,
