@@ -54,9 +54,9 @@ function LoginPage({ setRole }) {
             // Redirect based on role
             navigate(
                 response.data.user.role === 'Organizer' ? '/my-matches' :
-                response.data.user.role === 'Venue Host' ? '/my-venues' :
-                response.data.user.role === 'Admin' ? '/admin' :
-                '/home'
+                    response.data.user.role === 'Venue Host' ? '/my-venues' :
+                        response.data.user.role === 'Admin' ? '/admin' :
+                            '/home'
             )
 
         } catch (error) {
@@ -115,7 +115,7 @@ function LoginPage({ setRole }) {
 
                 {/* Email */}
                 <div className="form-group">
-                    <label className="form-label">Email</label>
+                    <label className="form-label">Email <span style={{ color: '#DC2626' }}>*</span></label>
                     <input
                         type="email"
                         className={errors.email ? 'form-input error' : 'form-input'}
@@ -128,7 +128,7 @@ function LoginPage({ setRole }) {
 
                 {/* Password */}
                 <div className="form-group">
-                    <label className="form-label">Password</label>
+                    <label className="form-label">Password <span style={{ color: '#DC2626' }}>*</span></label>
                     <input
                         type="password"
                         className={errors.password ? 'form-input error' : 'form-input'}
@@ -138,6 +138,11 @@ function LoginPage({ setRole }) {
                     />
                     {errors.password && <p className="form-error">{errors.password}</p>}
                 </div>
+
+                {/* Required note */}
+                <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 8, textAlign: 'right' }}>
+                    <span style={{ color: '#DC2626' }}>*</span> Required field
+                </p>
 
                 {/* Submit */}
                 <button

@@ -79,8 +79,8 @@ function RegisterPage({ setRole }) {
 
             navigate(
                 response.data.user.role === 'Organizer' ? '/my-matches' :
-                response.data.user.role === 'Venue Host' ? '/my-venues' :
-                '/home'
+                    response.data.user.role === 'Venue Host' ? '/my-venues' :
+                        '/home'
             )
         } catch (error) {
             if (error.response && error.response.data.message) {
@@ -265,10 +265,9 @@ function RegisterPage({ setRole }) {
                 )}
 
                 {/* Required note */}
-                <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 8 }}>
+                <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 8, textAlign: 'right' }}>
                     <span style={{ color: '#DC2626' }}>*</span> Required field
                 </p>
-
                 {/* Submit */}
                 <button
                     className="btn-register"
