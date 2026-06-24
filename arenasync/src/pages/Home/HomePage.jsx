@@ -272,14 +272,9 @@ function MatchCard({ match, joined, onJoin, onView, role }) {
     <div className="match-card" onClick={onView}>
 
       <div className="match-card-top">
-        {match.tag ? (
+        {match.tag && (
           <span className={getTagClass(match.tag)}>{match.tag}</span>
-        ) : (
-          <span />
         )}
-        <span className="match-price">
-          Free <span>per player</span>
-        </span>
       </div>
 
       <h3 className="match-title">{match.title}</h3>
