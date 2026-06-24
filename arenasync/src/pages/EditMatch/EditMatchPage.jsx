@@ -6,6 +6,8 @@ import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
 import IconLocation from '../../components/icons/IconLocation'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 function EditMatchPage({ role, setRole }) {
 
   const navigate = useNavigate()
@@ -27,7 +29,7 @@ function EditMatchPage({ role, setRole }) {
   useEffect(function () {
     async function fetchMatch() {
       try {
-        const res = await axios.get('http://localhost:5000/api/matches/' + id)
+        const res = await axios.get(API_URL + '/api/matches/' + id)
         const match = res.data.match
 
         setTitle(match.title || '')
@@ -72,7 +74,7 @@ function EditMatchPage({ role, setRole }) {
       const token = localStorage.getItem('token')
 
       await axios.put(
-        'http://localhost:5000/api/matches/' + id,
+        API_URL + '/api/matches/' + id,
         {
           title,
           venue,
