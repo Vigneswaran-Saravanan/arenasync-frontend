@@ -8,6 +8,8 @@ import IconCalendar from '../../components/icons/IconCalendar'
 import IconClock from '../../components/icons/IconClock'
 import IconUser from '../../components/icons/IconUser'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 function OrganizerMatchPage({ role, setRole }) {
 
   const { id } = useParams()
@@ -49,7 +51,7 @@ function OrganizerMatchPage({ role, setRole }) {
   async function fetchMatch() {
     try {
       const token = localStorage.getItem('token')
-      const res = await axios.get('http://localhost:5000/api/matches/' + id, {
+      const res = await axios.get(API_URL + '/api/matches/' + id, {
         headers: { Authorization: 'Bearer ' + token }
       })
       setMatch(res.data.match)
@@ -71,7 +73,7 @@ function OrganizerMatchPage({ role, setRole }) {
     try {
       const token = localStorage.getItem('token')
       await axios.put(
-        'http://localhost:5000/api/matches/' + id + '/players/' + playerId,
+        API_URL + '/api/matches/' + id + '/players/' + playerId,
         { action: 'confirmed' },
         { headers: { Authorization: 'Bearer ' + token } }
       )
@@ -90,7 +92,7 @@ function OrganizerMatchPage({ role, setRole }) {
     try {
       const token = localStorage.getItem('token')
       await axios.put(
-        'http://localhost:5000/api/matches/' + id + '/players/' + playerId,
+        API_URL + '/api/matches/' + id + '/players/' + playerId,
         { action: 'declined' },
         { headers: { Authorization: 'Bearer ' + token } }
       )
@@ -107,7 +109,7 @@ function OrganizerMatchPage({ role, setRole }) {
   async function handleCancelMatch() {
     try {
       const token = localStorage.getItem('token')
-      await axios.delete('http://localhost:5000/api/matches/' + id, {
+      await axios.delete(API_URL + '/api/matches/' + id, {
         headers: { Authorization: 'Bearer ' + token }
       })
       setMatchCancelled(true)
@@ -125,7 +127,7 @@ function OrganizerMatchPage({ role, setRole }) {
     try {
       const token = localStorage.getItem('token')
       await axios.put(
-        'http://localhost:5000/api/matches/' + id,
+        API_URL + '/api/matches/' + id,
         { status: 'Completed' },
         { headers: { Authorization: 'Bearer ' + token } }
       )
@@ -154,7 +156,7 @@ function OrganizerMatchPage({ role, setRole }) {
     try {
       const token = localStorage.getItem('token')
       await axios.patch(
-        'http://localhost:5000/api/matches/' + id + '/attendance',
+        API_URL + '/api/matches/' + id + '/attendance',
         { attendedPlayerIds: attendedIds },
         { headers: { Authorization: 'Bearer ' + token } }
       )
