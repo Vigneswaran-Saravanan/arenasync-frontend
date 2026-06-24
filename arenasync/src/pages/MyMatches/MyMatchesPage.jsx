@@ -8,6 +8,9 @@ import IconCalendar from '../../components/icons/IconCalendar'
 import IconClock from '../../components/icons/IconClock'
 import IconLocation from '../../components/icons/IconLocation'
 
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 function MyMatchesPage({ role, setRole }) {
 
   const navigate = useNavigate()
@@ -31,13 +34,13 @@ function MyMatchesPage({ role, setRole }) {
 
         if (role === 'Organizer') {
           // Use the new endpoint that returns ALL statuses
-          const res = await axios.get('http://localhost:5000/api/matches/my-created', {
+          const res = await axios.get(API_URL + '/api/matches/my-created', {
             headers: { Authorization: 'Bearer ' + token }
           })
           setMyCreatedMatches(res.data.matches)
         } else {
           // Player — fetch matches they joined
-          const res = await axios.get('http://localhost:5000/api/matches/my-matches', {
+          const res = await axios.get(API_URL + '/api/matches/my-matches', {
             headers: { Authorization: 'Bearer ' + token }
           })
           setMatches(res.data.matches)
@@ -94,7 +97,7 @@ function MyMatchesPage({ role, setRole }) {
   async function handleCancelRequest(matchId) {
     try {
       const token = localStorage.getItem('token')
-      await axios.delete('http://localhost:5000/api/matches/' + matchId + '/leave', {
+      await axios.delete(API_URL + '/api/matches/' + matchId + '/leave', {
         headers: { Authorization: 'Bearer ' + token }
       })
       setMatches(matches.filter(function (m) { return m._id !== matchId }))
