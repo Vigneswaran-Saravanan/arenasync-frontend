@@ -77,7 +77,11 @@ function RegisterPage({ setRole }) {
             localStorage.setItem('user', JSON.stringify(response.data.user))
             setRole(response.data.user.role)
 
-            navigate('/')
+            navigate(
+                response.data.user.role === 'Organizer' ? '/my-matches' :
+                response.data.user.role === 'Venue Host' ? '/my-venues' :
+                '/home'
+            )
         } catch (error) {
             if (error.response && error.response.data.message) {
                 setServerError(error.response.data.message)
