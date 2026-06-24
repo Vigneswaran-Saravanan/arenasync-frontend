@@ -10,6 +10,7 @@ import IconClock from '../../components/icons/IconClock'
 import IconUser from '../../components/icons/IconUser'
 import IconCheck from '../../components/icons/IconCheck'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 function MatchDetailPage({ role, setRole }) {
 
@@ -47,7 +48,7 @@ function MatchDetailPage({ role, setRole }) {
     async function fetchMatch() {
       try {
         const token = localStorage.getItem('token')
-        const res = await axios.get('http://localhost:5000/api/matches/' + id, {
+        const res = await axios.get(API_URL + '/api/matches/' + id, {
           headers: { Authorization: 'Bearer ' + token }
         })
         setMatch(res.data.match)
@@ -73,7 +74,7 @@ function MatchDetailPage({ role, setRole }) {
   // Re-fetch match after join or leave so slot grid updates
   async function refetchMatch() {
     const token = localStorage.getItem('token')
-    const res = await axios.get('http://localhost:5000/api/matches/' + id, {
+    const res = await axios.get(API_URL + '/api/matches/' + id, {
       headers: { Authorization: 'Bearer ' + token }
     })
     setMatch(res.data.match)
@@ -159,7 +160,7 @@ function MatchDetailPage({ role, setRole }) {
     try {
       const token = localStorage.getItem('token')
       await axios.post(
-        'http://localhost:5000/api/matches/' + id + '/join',
+        API_URL + '/api/matches/' + id + '/join',
         {},
         { headers: { Authorization: 'Bearer ' + token } }
       )
@@ -180,7 +181,7 @@ function MatchDetailPage({ role, setRole }) {
     try {
       const token = localStorage.getItem('token')
       await axios.delete(
-        'http://localhost:5000/api/matches/' + id + '/leave',
+        API_URL + '/api/matches/' + id + '/leave',
         { headers: { Authorization: 'Bearer ' + token } }
       )
       setJoinStatus('none')
