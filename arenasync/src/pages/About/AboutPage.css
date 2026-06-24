@@ -1,0 +1,269 @@
+.about-page {
+  min-height: 100vh;
+  background: var(--page-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hero */
+.about-hero {
+  background: linear-gradient(135deg, #14532D 0%, #16A34A 100%);
+  padding: 72px 24px;
+  text-align: center;
+}
+
+.about-hero-inner {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.about-hero-heading {
+  font-size: 40px;
+  font-weight: 800;
+  color: white;
+  margin: 0 0 16px 0;
+}
+
+.about-hero-sub {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Sections */
+.about-section {
+  padding: 72px 24px;
+}
+
+.about-section-grey {
+  background: #F3F4F6;
+}
+
+.about-section-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Two column layout */
+.about-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.about-two-col h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 16px 0;
+}
+
+.about-two-col p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 0 0 12px 0;
+}
+
+/* Stat box */
+.about-stat-box {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.about-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.about-stat-number {
+  font-size: 36px;
+  font-weight: 800;
+  color: #16A34A;
+  line-height: 1;
+}
+
+.about-stat-label {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Roles section */
+.about-roles-heading {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--dark);
+  text-align: center;
+  margin: 0 0 10px 0;
+}
+
+.about-roles-sub {
+  font-size: 15px;
+  color: var(--muted);
+  text-align: center;
+  margin: 0 0 48px 0;
+}
+
+/* Role block */
+.about-role-block {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+}
+
+.about-role-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.about-role-icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-role-icon-player { background: #16A34A; }
+.about-role-icon-organizer { background: #2563EB; }
+.about-role-icon-host { background: #D97706; }
+
+.about-role-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 4px 0;
+}
+
+.about-role-header p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Role steps */
+.about-role-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.about-role-step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.about-step-num {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  background: #DCFCE7;
+  color: #16A34A;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.about-role-step strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+
+.about-role-step p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* CTA */
+.about-cta {
+  background: linear-gradient(135deg, #14532D 0%, #16A34A 100%);
+  padding: 72px 24px;
+  text-align: center;
+}
+
+.about-cta-inner {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.about-cta h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 12px 0;
+}
+
+.about-cta p {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 28px 0;
+}
+
+.about-cta-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-about-primary {
+  background: white;
+  color: #16A34A;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-about-primary:hover {
+  opacity: 0.92;
+}
+
+.btn-about-secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-about-secondary:hover {
+  border-color: white;
+}
+
+@media (max-width: 768px) {
+  .about-hero-heading { font-size: 30px; }
+  .about-two-col { grid-template-columns: 1fr; }
+}
