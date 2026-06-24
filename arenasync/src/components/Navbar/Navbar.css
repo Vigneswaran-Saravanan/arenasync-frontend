@@ -292,3 +292,36 @@
   font-size: 11px;
   color: var(--placeholder);
 }
+
+/* Public navbar buttons */
+.nav-public-login-btn {
+  background: none;
+  border: 1px solid var(--green);
+  color: var(--green);
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.nav-public-login-btn:hover {
+  background: var(--green-light);
+}
+
+.nav-public-register-btn {
+  background: var(--green);
+  border: none;
+  color: white;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.nav-public-register-btn:hover {
+  background: var(--green-dark);
+}
