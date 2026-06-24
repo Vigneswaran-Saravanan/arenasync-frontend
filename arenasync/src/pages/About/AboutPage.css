@@ -7,7 +7,7 @@
 
 /* Hero */
 .about-hero {
-  background: linear-gradient(135deg, #14532D 0%, #16A34A 100%);
+  background: var(--green);
   padding: 72px 24px;
   text-align: center;
 }
@@ -203,11 +203,10 @@
 
 /* CTA */
 .about-cta {
-  background: linear-gradient(135deg, #14532D 0%, #16A34A 100%);
+  background: var(--green);
   padding: 72px 24px;
   text-align: center;
 }
-
 .about-cta-inner {
   max-width: 520px;
   margin: 0 auto;
