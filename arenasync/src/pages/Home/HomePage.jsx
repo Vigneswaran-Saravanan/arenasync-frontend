@@ -269,7 +269,7 @@ function MatchCard({ match, joined, onJoin, onView, role }) {
   }
 
   return (
-    <div className="match-card">
+    <div className="match-card" onClick={onView}>
 
       <div className="match-card-top">
         {match.tag ? (
@@ -317,22 +317,13 @@ function MatchCard({ match, joined, onJoin, onView, role }) {
       </div>
 
       <div className="match-card-bottom">
-        <span className="match-weather">
+        {/* <span className="match-weather">
           {match.weather.temp} · {match.weather.condition}
-        </span>
+        </span> */}
         <div className="match-buttons">
-          <button className="btn-view" onClick={onView}>View</button>
-          {role === 'Player' && (
-            <button
-              className={joined ? 'btn-join joined' : 'btn-join'}
-              onClick={function (e) {
-                e.stopPropagation()
-                onJoin(match.id, match.title)
-              }}
-            >
-              {joined ? 'Request Sent ✓' : 'Join now'}
-            </button>
-          )}
+          <button className="btn-join" onClick={function (e) { e.stopPropagation(); onView() }}>
+            View & Join
+          </button>
         </div>
 
       </div>
