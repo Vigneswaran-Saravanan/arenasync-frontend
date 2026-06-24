@@ -8,6 +8,8 @@ import IconUser from '../../components/icons/IconUser'
 import IconCalendar from '../../components/icons/IconCalendar'
 import IconBuilding from '../../components/icons/IconBuilding'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 function AdminPage({ role, setRole }) {
 
     const navigate = useNavigate()
@@ -68,7 +70,7 @@ function AdminPage({ role, setRole }) {
             try {
                 const token = localStorage.getItem('token')
 
-                const res = await axios.get('http://localhost:5000/api/admin/users', {
+                const res = await axios.get(API_URL + '/api/admin/users', {
                     headers: { Authorization: 'Bearer ' + token }
                 })
                 setUsers(res.data)
@@ -89,7 +91,7 @@ function AdminPage({ role, setRole }) {
                 setMatchesLoading(true)
                 const token = localStorage.getItem('token')
 
-                const res = await axios.get('http://localhost:5000/api/admin/matches', {
+                const res = await axios.get(API_URL + '/api/admin/matches', {
                     headers: { Authorization: 'Bearer ' + token }
                 })
                 setMatches(res.data)
@@ -114,7 +116,7 @@ function AdminPage({ role, setRole }) {
                 setVenuesLoading(true)
                 const token = localStorage.getItem('token')
 
-                const res = await axios.get('http://localhost:5000/api/admin/venues', {
+                const res = await axios.get(API_URL + '/api/admin/venues', {
                     headers: { Authorization: 'Bearer ' + token }
                 })
                 setVenues(res.data)
@@ -187,7 +189,7 @@ function AdminPage({ role, setRole }) {
             const token = localStorage.getItem('token')
 
             const res = await axios.put(
-                'http://localhost:5000/api/admin/users/' + editingUser._id,
+                API_URL + '/api/admin/users/' + editingUser._id,
                 { role: editRole, status: editStatus },
                 { headers: { Authorization: 'Bearer ' + token } }
             )
@@ -209,7 +211,7 @@ function AdminPage({ role, setRole }) {
             const token = localStorage.getItem('token')
 
             await axios.delete(
-                'http://localhost:5000/api/admin/users/' + deletingUser._id,
+                API_URL + '/api/admin/users/' + deletingUser._id,
                 { headers: { Authorization: 'Bearer ' + token } }
             )
 
@@ -230,7 +232,7 @@ function AdminPage({ role, setRole }) {
             const token = localStorage.getItem('token')
 
             await axios.patch(
-                'http://localhost:5000/api/admin/matches/' + matchId,
+                 API_URL + '/api/admin/matches/' + matchId,
                 { status: newStatus },
                 { headers: { Authorization: 'Bearer ' + token } }
             )
@@ -250,7 +252,7 @@ function AdminPage({ role, setRole }) {
             const token = localStorage.getItem('token')
 
             await axios.delete(
-                'http://localhost:5000/api/admin/matches/' + deletingMatch._id,
+                API_URL + '/api/admin/matches/' + deletingMatch._id,
                 { headers: { Authorization: 'Bearer ' + token } }
             )
 
@@ -271,7 +273,7 @@ function AdminPage({ role, setRole }) {
             const token = localStorage.getItem('token')
 
             await axios.delete(
-                'http://localhost:5000/api/admin/venues/' + deletingVenue._id,
+                API_URL + '/api/admin/venues/' + deletingVenue._id,
                 { headers: { Authorization: 'Bearer ' + token } }
             )
 
