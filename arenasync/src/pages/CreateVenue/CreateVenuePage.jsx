@@ -42,7 +42,10 @@ function CreateVenuePage({ role, setRole }) {
     const newErrors = {}
     if (!name.trim()) newErrors.name = 'Venue name is required'
     if (!address.trim()) newErrors.address = 'Address is required'
+    if (!fieldType.trim()) newErrors.fieldType = 'Field type is required'
     if (!capacity || capacity < 2) newErrors.capacity = 'Capacity must be at least 2'
+
+
     return newErrors
   }
 
@@ -166,14 +169,15 @@ function CreateVenuePage({ role, setRole }) {
 
         <div className="venue-form-row">
           <div className="venue-form-group">
-            <label className="venue-form-label">Field Type</label>
+            <label className="venue-form-label">Field Type <span style={{ color: '#DC2626' }}>*</span></label>
             <input
               type="text"
-              className="venue-form-input"
+              className={errors.fieldType ? 'venue-form-input error' : 'venue-form-input'}
               placeholder="e.g. Artificial Turf"
               value={fieldType}
               onChange={function (e) { setFieldType(e.target.value) }}
             />
+            {errors.fieldType && <p className="venue-form-error">{errors.fieldType}</p>}
           </div>
 
           <div className="venue-form-group">
