@@ -5,6 +5,8 @@ import './CreateVenuePage.css'
 import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 function CreateVenuePage({ role, setRole }) {
 
   const navigate = useNavigate()
@@ -58,7 +60,7 @@ function CreateVenuePage({ role, setRole }) {
       const token = localStorage.getItem('token')
 
       const response = await axios.post(
-        'http://localhost:5000/api/venues',
+        API_URL + '/api/venues',
         {
           name,
           address,
