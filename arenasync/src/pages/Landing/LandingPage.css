@@ -7,7 +7,7 @@
 
 /* Hero */
 .landing-hero {
-  background: linear-gradient(135deg, #14532D 0%, #16A34A 100%);
+  background: var(--green);
   padding: 80px 24px 96px;
 }
 
@@ -278,7 +278,7 @@
 
 /* CTA */
 .landing-cta {
-  background: linear-gradient(135deg, #14532D 0%, #16A34A 100%);
+  background: var(--green);
   padding: 72px 24px;
   text-align: center;
 }
