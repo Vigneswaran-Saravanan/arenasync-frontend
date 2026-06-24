@@ -23,7 +23,6 @@ function EditVenuePage({ role, setRole }) {
   const [address, setAddress] = useState('')
   const [fieldType, setFieldType] = useState('')
   const [capacity, setCapacity] = useState(14)
-  const [photoUrl, setPhotoUrl] = useState('')
   const [facilities, setFacilities] = useState([])
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
@@ -40,7 +39,6 @@ function EditVenuePage({ role, setRole }) {
         setAddress(venue.address || '')
         setFieldType(venue.fieldType || '')
         setCapacity(venue.capacity || 14)
-        setPhotoUrl(venue.photoUrl || '')
         setFacilities(venue.facilities || [])
 
       } catch (err) {
@@ -88,7 +86,6 @@ function EditVenuePage({ role, setRole }) {
           address,
           fieldType,
           capacity,
-          photoUrl,
           facilities
         },
         {
@@ -180,15 +177,6 @@ function EditVenuePage({ role, setRole }) {
           </div>
         </div>
 
-        <div className="venue-form-group">
-          <label className="venue-form-label">Photo URL (optional)</label>
-          <input
-            type="text"
-            className="venue-form-input"
-            value={photoUrl}
-            onChange={function (e) { setPhotoUrl(e.target.value) }}
-          />
-        </div>
 
         <div className="venue-form-group">
           <label className="venue-form-label">Facilities</label>
