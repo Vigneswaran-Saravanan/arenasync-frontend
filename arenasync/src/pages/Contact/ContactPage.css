@@ -7,7 +7,7 @@
 
 /* Hero */
 .contact-hero {
-  background: linear-gradient(135deg, #14532D 0%, #16A34A 100%);
+  background: var(--green);
   padding: 64px 24px;
   text-align: center;
 }
