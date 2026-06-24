@@ -64,6 +64,7 @@ function EditVenuePage({ role, setRole }) {
     const newErrors = {}
     if (!name.trim()) newErrors.name = 'Venue name is required'
     if (!address.trim()) newErrors.address = 'Address is required'
+    if (!fieldType.trim()) newErrors.fieldType = 'Field type is required'
     if (!capacity || capacity < 2) newErrors.capacity = 'Capacity must be at least 2'
     return newErrors
   }
@@ -133,7 +134,7 @@ function EditVenuePage({ role, setRole }) {
         )}
 
         <div className="venue-form-group">
-          <label className="venue-form-label">Venue Name</label>
+          <label className="venue-form-label">Venue Name <span style={{ color: '#DC2626' }}>*</span></label>
           <input
             type="text"
             className={errors.name ? 'venue-form-input error' : 'venue-form-input'}
@@ -144,7 +145,7 @@ function EditVenuePage({ role, setRole }) {
         </div>
 
         <div className="venue-form-group">
-          <label className="venue-form-label">Address</label>
+          <label className="venue-form-label">Address <span style={{ color: '#DC2626' }}>*</span></label>
           <input
             type="text"
             className={errors.address ? 'venue-form-input error' : 'venue-form-input'}
@@ -156,17 +157,18 @@ function EditVenuePage({ role, setRole }) {
 
         <div className="venue-form-row">
           <div className="venue-form-group">
-            <label className="venue-form-label">Field Type</label>
+            <label className="venue-form-label">Field Type <span style={{ color: '#DC2626' }}>*</span></label>
             <input
               type="text"
-              className="venue-form-input"
+              className={errors.fieldType ? 'venue-form-input error' : 'venue-form-input'}
               value={fieldType}
               onChange={function (e) { setFieldType(e.target.value) }}
             />
+            {errors.fieldType && <p className="venue-form-error">{errors.fieldType}</p>}
           </div>
 
           <div className="venue-form-group">
-            <label className="venue-form-label">Capacity (players)</label>
+            <label className="venue-form-label">Capacity (players) <span style={{ color: '#DC2626' }}>*</span></label>
             <input
               type="number"
               className={errors.capacity ? 'venue-form-input error' : 'venue-form-input'}
@@ -197,6 +199,10 @@ function EditVenuePage({ role, setRole }) {
             })}
           </div>
         </div>
+
+        <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 8, textAlign: 'right' }}>
+          <span style={{ color: '#DC2626' }}>*</span> Required field
+        </p>
 
         <div style={{ display: 'flex', gap: 12 }}>
           <button
