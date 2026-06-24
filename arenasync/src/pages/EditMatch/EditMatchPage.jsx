@@ -54,6 +54,7 @@ function EditMatchPage({ role, setRole }) {
     const newErrors = {}
     if (!title.trim()) newErrors.title = 'Match title is required'
     if (!venue.trim()) newErrors.venue = 'Venue name is required'
+    if (!address.trim()) newErrors.address = 'Address is required'
     if (!date) newErrors.date = 'Date is required'
     if (!time) newErrors.time = 'Time is required'
     if (!skillLevel) newErrors.skillLevel = 'Please select a skill level'
@@ -138,7 +139,7 @@ function EditMatchPage({ role, setRole }) {
 
           {/* Title */}
           <div className="form-group">
-            <label className="form-label">Match Title</label>
+            <label className="form-label">Match Title <span style={{ color: '#DC2626' }}>*</span></label>
             <input
               type="text"
               className={errors.title ? 'form-input error' : 'form-input'}
@@ -151,7 +152,7 @@ function EditMatchPage({ role, setRole }) {
 
           {/* Venue */}
           <div className="form-group">
-            <label className="form-label">Venue Name</label>
+            <label className="form-label">Venue Name <span style={{ color: '#DC2626' }}>*</span></label>
             <input
               type="text"
               className={errors.venue ? 'form-input error' : 'form-input'}
@@ -164,20 +165,21 @@ function EditMatchPage({ role, setRole }) {
 
           {/* Address */}
           <div className="form-group">
-            <label className="form-label">Address</label>
+            <label className="form-label">Address <span style={{ color: '#DC2626' }}>*</span></label>
             <input
               type="text"
-              className="form-input"
+              className={errors.address ? 'form-input error' : 'form-input'}
               placeholder="Street address, Toronto"
               value={address}
               onChange={function (e) { setAddress(e.target.value) }}
             />
+            {errors.address && <p className="form-error">{errors.address}</p>}
           </div>
 
           {/* Date and Time */}
           <div className="form-row">
             <div className="form-group">
-              <label className="form-label">Date</label>
+              <label className="form-label">Date <span style={{ color: '#DC2626' }}>*</span></label>
               <input
                 type="date"
                 className={errors.date ? 'form-input error' : 'form-input'}
@@ -187,7 +189,7 @@ function EditMatchPage({ role, setRole }) {
               {errors.date && <p className="form-error">{errors.date}</p>}
             </div>
             <div className="form-group">
-              <label className="form-label">Time</label>
+              <label className="form-label">Time <span style={{ color: '#DC2626' }}>*</span></label>
               <input
                 type="time"
                 className={errors.time ? 'form-input error' : 'form-input'}
@@ -210,7 +212,7 @@ function EditMatchPage({ role, setRole }) {
 
           {/* Skill Level */}
           <div className="form-group">
-            <label className="form-label">Skill Level</label>
+            <label className="form-label">Skill Level <span style={{ color: '#DC2626' }}>*</span></label>
             <div className="skill-pills">
               {['Beginner', 'Intermediate', 'Advanced'].map(function (level) {
                 return (
@@ -253,6 +255,10 @@ function EditMatchPage({ role, setRole }) {
               {errors.server}
             </div>
           )}
+
+          <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 8, textAlign: 'right' }}>
+            <span style={{ color: '#DC2626' }}>*</span> Required field
+          </p>
 
           <div style={{ display: 'flex', gap: 12 }}>
             <button
