@@ -72,7 +72,7 @@ function CreateMatchPage({ role, setRole }) {
 
       // Send match data to backend
       const response = await axios.post(
-         API_URL + '/api/matches',
+        API_URL + '/api/matches',
         {
           title,
           venue,
@@ -83,7 +83,7 @@ function CreateMatchPage({ role, setRole }) {
           skillLevel,
           maxPlayers,
           description: notes,
-    
+
         },
         {
           headers: {
@@ -168,7 +168,7 @@ function CreateMatchPage({ role, setRole }) {
 
           {/* Title */}
           <div className="form-group">
-            <label className="form-label">Match Title</label>
+            <label className="form-label">Match Title <span style={{ color: '#DC2626' }}>*</span></label>
             <input
               type="text"
               className={errors.title ? 'form-input error' : 'form-input'}
@@ -220,7 +220,7 @@ function CreateMatchPage({ role, setRole }) {
 
           {/* Venue */}
           <div className="form-group">
-            <label className="form-label">Venue Name</label>
+            <label className="form-label">Venue Name <span style={{ color: '#DC2626' }}>*</span></label>
 
             {!selectedVenue && (
               <div style={{
@@ -284,7 +284,7 @@ function CreateMatchPage({ role, setRole }) {
           {/* Date and Time */}
           <div className="form-row">
             <div className="form-group">
-              <label className="form-label">Date</label>
+              <label className="form-label">Date <span style={{ color: '#DC2626' }}>*</span></label>
               <input
                 type="date"
                 className={errors.date ? 'form-input error' : 'form-input'}
@@ -294,7 +294,7 @@ function CreateMatchPage({ role, setRole }) {
               {errors.date && <p className="form-error">{errors.date}</p>}
             </div>
             <div className="form-group">
-              <label className="form-label">Time</label>
+              <label className="form-label">Time <span style={{ color: '#DC2626' }}>*</span></label>
               <input
                 type="time"
                 className={errors.time ? 'form-input error' : 'form-input'}
@@ -317,7 +317,7 @@ function CreateMatchPage({ role, setRole }) {
 
           {/* Skill Level */}
           <div className="form-group">
-            <label className="form-label">Skill Level</label>
+            <label className="form-label">Skill Level <span style={{ color: '#DC2626' }}>*</span></label>
             <div className="skill-pills">
               {['Beginner', 'Intermediate', 'Advanced'].map(function (level) {
                 return (
@@ -360,6 +360,10 @@ function CreateMatchPage({ role, setRole }) {
               {errors.server}
             </div>
           )}
+
+          <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 8, textAlign: 'right' }}>
+            <span style={{ color: '#DC2626' }}>*</span> Required field
+          </p>
 
           <button
             className="btn-create-match"
