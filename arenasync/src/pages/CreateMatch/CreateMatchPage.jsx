@@ -6,6 +6,8 @@ import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
 import IconLocation from '../../components/icons/IconLocation'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 function CreateMatchPage({ role, setRole }) {
 
   const navigate = useNavigate()
@@ -70,7 +72,7 @@ function CreateMatchPage({ role, setRole }) {
 
       // Send match data to backend
       const response = await axios.post(
-        'http://localhost:5000/api/matches',
+         API_URL + '/api/matches',
         {
           title,
           venue,
