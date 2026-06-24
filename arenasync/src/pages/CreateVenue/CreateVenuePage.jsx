@@ -22,7 +22,6 @@ function CreateVenuePage({ role, setRole }) {
   const [address, setAddress] = useState('')
   const [fieldType, setFieldType] = useState('')
   const [capacity, setCapacity] = useState(14)
-  const [photoUrl, setPhotoUrl] = useState('')
   const [facilities, setFacilities] = useState([])
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
@@ -65,7 +64,6 @@ function CreateVenuePage({ role, setRole }) {
           address,
           fieldType,
           capacity,
-          photoUrl,
           facilities
         },
         {
@@ -188,17 +186,6 @@ function CreateVenuePage({ role, setRole }) {
             />
             {errors.capacity && <p className="venue-form-error">{errors.capacity}</p>}
           </div>
-        </div>
-
-        <div className="venue-form-group">
-          <label className="venue-form-label">Photo URL (optional)</label>
-          <input
-            type="text"
-            className="venue-form-input"
-            placeholder="https://..."
-            value={photoUrl}
-            onChange={function (e) { setPhotoUrl(e.target.value) }}
-          />
         </div>
 
         <div className="venue-form-group">
