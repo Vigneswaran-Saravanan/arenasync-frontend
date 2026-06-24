@@ -17,7 +17,7 @@ function Navbar({ role, setRole }) {
 
   const [showNotif, setShowNotif] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
-
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [notifs, setNotifs] = useState([])
 
   // Get logged in user from localStorage
@@ -50,18 +50,17 @@ function Navbar({ role, setRole }) {
     navigate('/')
   }
 
+
   // Fetch real notifications
   useEffect(function () {
     async function fetchNotifications() {
       try {
         const token = localStorage.getItem('token')
         if (!token) return
-
         const res = await axios.get(API_URL + '/api/notifications', {
           headers: { Authorization: 'Bearer ' + token }
         })
         setNotifs(res.data)
-
       } catch (err) {
         console.log('Could not load notifications')
       }
@@ -76,45 +75,36 @@ function Navbar({ role, setRole }) {
   async function handleOpenBell() {
     setShowNotif(!showNotif)
     setShowUserMenu(false)
-
     if (!showNotif && unreadCount > 0) {
       try {
         const token = localStorage.getItem('token')
-
         await axios.patch(API_URL + '/api/notifications/mark-all-read', {}, {
           headers: { Authorization: 'Bearer ' + token }
         })
-
-        setNotifs(notifs.map(function (n) {
-          return { ...n, read: true }
-        }))
-
+        setNotifs(notifs.map(function (n) { return { ...n, read: true } }))
       } catch (err) {
         console.log('Could not mark notifications as read')
       }
     }
   }
-
-  // Organizer accepts a join request directly from the notification panel
+  
+   // Organizer accepts a join request directly from the notification panel
   async function handleAccept(notif) {
     try {
       const token = localStorage.getItem('token')
-
       await axios.put(
         API_URL + '/api/matches/' + notif.matchId + '/players/' + notif.senderId,
         { action: 'confirmed' },
         { headers: { Authorization: 'Bearer ' + token } }
       )
-
     } catch (err) {
       console.log('Could not accept request')
     } finally {
       try {
         const token = localStorage.getItem('token')
-        await axios.delete(
-          API_URL + '/api/notifications/' + notif._id,
-          { headers: { Authorization: 'Bearer ' + token } }
-        )
+        await axios.delete(API_URL + '/api/notifications/' + notif._id, {
+          headers: { Authorization: 'Bearer ' + token }
+        })
       } catch (err) {
         console.log('Could not delete notification')
       }
@@ -122,26 +112,23 @@ function Navbar({ role, setRole }) {
     }
   }
 
-  // Organizer declines a join request directly from the notification panel
+   // Organizer declines a join request directly from the notification panel
   async function handleDecline(notif) {
     try {
       const token = localStorage.getItem('token')
-
       await axios.put(
-         API_URL + '/api/matches/' + notif.matchId + '/players/' + notif.senderId,
+        API_URL + '/api/matches/' + notif.matchId + '/players/' + notif.senderId,
         { action: 'declined' },
         { headers: { Authorization: 'Bearer ' + token } }
       )
-
     } catch (err) {
       console.log('Could not decline request')
     } finally {
       try {
         const token = localStorage.getItem('token')
-        await axios.delete(
-           API_URL + '/api/notifications/' + notif._id,
-          { headers: { Authorization: 'Bearer ' + token } }
-        )
+        await axios.delete(API_URL + '/api/notifications/' + notif._id, {
+          headers: { Authorization: 'Bearer ' + token }
+        })
       } catch (err) {
         console.log('Could not delete notification')
       }
@@ -149,7 +136,7 @@ function Navbar({ role, setRole }) {
     }
   }
 
-  // Convert a notification type to a readable title
+    // Convert a notification type to a readable title
   function getNotifTitle(type) {
     if (type === 'join_request') return 'New Join Request'
     if (type === 'request_accepted') return 'Join Request Approved'
@@ -158,7 +145,7 @@ function Navbar({ role, setRole }) {
     return 'Notification'
   }
 
-  // Format the createdAt timestamp to a relative time string
+   // Format the createdAt timestamp to a relative time string
   function formatTime(dateStr) {
     const diff = Date.now() - new Date(dateStr).getTime()
     const minutes = Math.floor(diff / 60000)
@@ -169,23 +156,18 @@ function Navbar({ role, setRole }) {
     return days + 'd ago'
   }
 
-  // If no role (not logged in), show the public navbar
+  // Public navbar
   if (!role) {
     return (
       <nav className="navbar">
         <div className="navbar-inner">
           <div className="navbar-logo" onClick={function () { navigate('/') }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="42" height="50" viewBox="0 0 64 73">
-              <defs>
-                <clipPath id="field-pub">
-                  <circle cx="32" cy="29" r="19" />
-                </clipPath>
-              </defs>
+              <defs><clipPath id="field-pub"><circle cx="32" cy="29" r="19" /></clipPath></defs>
               <path d="M32 3C17 3 5 15 5 30C5 42 12.5 52 22 60L32 73L42 60C51.5 52 59 42 59 30C59 15 47 3 32 3Z" fill="#16A34A" />
               <circle cx="32" cy="29" r="20.5" fill="none" stroke="white" strokeWidth="1.7" />
               <circle cx="32" cy="29" r="19" fill="#16A34A" />
-              <g clipPath="url(#field-pub)" fill="none" stroke="white" strokeWidth="0.9"
-                strokeLinecap="round" strokeLinejoin="round">
+              <g clipPath="url(#field-pub)" fill="none" stroke="white" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="14" y="9" width="36" height="40" />
                 <line x1="14" y1="29" x2="50" y2="29" />
                 <circle cx="32" cy="29" r="7" />
@@ -196,72 +178,57 @@ function Navbar({ role, setRole }) {
                 <rect x="23" y="45" width="18" height="4" />
               </g>
             </svg>
-            <span className="navbar-logo-text">
-              Arena<span className="navbar-logo-green">Sync</span>
-            </span>
+            <span className="navbar-logo-text">Arena<span className="navbar-logo-green">Sync</span></span>
           </div>
 
           <div className="navbar-links">
-            <button
-              className={location.pathname === '/' ? 'nav-link-btn active' : 'nav-link-btn'}
-              onClick={function () { navigate('/') }}
-            >
-              Home
-            </button>
-            <button
-              className={location.pathname === '/about' ? 'nav-link-btn active' : 'nav-link-btn'}
-              onClick={function () { navigate('/about') }}
-            >
-              About
-            </button>
-            <button
-              className={location.pathname === '/contact' ? 'nav-link-btn active' : 'nav-link-btn'}
-              onClick={function () { navigate('/contact') }}
-            >
-              Contact
-            </button>
+            <button className={location.pathname === '/' ? 'nav-link-btn active' : 'nav-link-btn'} onClick={function () { navigate('/') }}>Home</button>
+            <button className={location.pathname === '/about' ? 'nav-link-btn active' : 'nav-link-btn'} onClick={function () { navigate('/about') }}>About</button>
+            <button className={location.pathname === '/contact' ? 'nav-link-btn active' : 'nav-link-btn'} onClick={function () { navigate('/contact') }}>Contact</button>
           </div>
 
           <div className="navbar-right">
-            <button
-              className="nav-public-login-btn"
-              onClick={function () { navigate('/login') }}
-            >
-              Login
-            </button>
-            <button
-              className="nav-public-register-btn"
-              onClick={function () { navigate('/register') }}
-            >
-              Get Started
-            </button>
+            <button className="nav-public-login-btn" onClick={function () { navigate('/login') }}>Login</button>
+            <button className="nav-public-register-btn" onClick={function () { navigate('/register') }}>Get Started</button>
           </div>
+
+          {/* Hamburger — mobile only */}
+          <button className="navbar-hamburger" onClick={function () { setShowMobileMenu(!showMobileMenu) }}>
+            <span />
+            <span />
+            <span />
+          </button>
         </div>
+
+        {/* Mobile menu — public */}
+        {showMobileMenu && (
+          <div className="navbar-mobile-menu">
+            <button className="navbar-mobile-link" onClick={function () { navigate('/'); setShowMobileMenu(false) }}>Home</button>
+            <button className="navbar-mobile-link" onClick={function () { navigate('/about'); setShowMobileMenu(false) }}>About</button>
+            <button className="navbar-mobile-link" onClick={function () { navigate('/contact'); setShowMobileMenu(false) }}>Contact</button>
+            <button className="navbar-mobile-link" onClick={function () { navigate('/login'); setShowMobileMenu(false) }}>Login</button>
+            <button className="navbar-mobile-link navbar-mobile-link-green" onClick={function () { navigate('/register'); setShowMobileMenu(false) }}>Get Started</button>
+          </div>
+        )}
       </nav>
     )
   }
 
-  // Logged-in navbar 
+  // Logged-in navbar
   return (
     <>
       <nav className={role === 'Admin' ? 'navbar navbar-admin' : 'navbar'}>
         <div className="navbar-inner">
 
-          {/* Logo */}
           <div className="navbar-logo" onClick={function () {
             navigate(role === 'Organizer' ? '/my-matches' : role === 'Venue Host' ? '/my-venues' : '/home')
           }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="42" height="50" viewBox="0 0 64 73">
-              <defs>
-                <clipPath id="field">
-                  <circle cx="32" cy="29" r="19" />
-                </clipPath>
-              </defs>
+              <defs><clipPath id="field"><circle cx="32" cy="29" r="19" /></clipPath></defs>
               <path d="M32 3C17 3 5 15 5 30C5 42 12.5 52 22 60L32 73L42 60C51.5 52 59 42 59 30C59 15 47 3 32 3Z" fill="#16A34A" />
               <circle cx="32" cy="29" r="20.5" fill="none" stroke="white" strokeWidth="1.7" />
               <circle cx="32" cy="29" r="19" fill="#16A34A" />
-              <g clipPath="url(#field)" fill="none" stroke="white" strokeWidth="0.9"
-                strokeLinecap="round" strokeLinejoin="round">
+              <g clipPath="url(#field)" fill="none" stroke="white" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="14" y="9" width="36" height="40" />
                 <line x1="14" y1="29" x2="50" y2="29" />
                 <circle cx="32" cy="29" r="7" />
@@ -272,133 +239,99 @@ function Navbar({ role, setRole }) {
                 <rect x="23" y="45" width="18" height="4" />
               </g>
             </svg>
-            <span className="navbar-logo-text">
-              Arena<span className="navbar-logo-green">Sync</span>
-            </span>
+            <span className="navbar-logo-text">Arena<span className="navbar-logo-green">Sync</span></span>
           </div>
 
-          {/* Navigation links */}
           <div className="navbar-links">
-
             {role !== 'Organizer' && role !== 'Venue Host' && role !== 'Admin' && (
-              <button
-                className={isActive('/home') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function () { navigate('/home') }}
-              >
-                <IconHome size={15} color={isActive('/home') ? '#16A34A' : '#6B7280'} />
-                Home
+              <button className={isActive('/home') ? 'nav-link-btn active' : 'nav-link-btn'} onClick={function () { navigate('/home') }}>
+                <IconHome size={15} color={isActive('/home') ? '#16A34A' : '#6B7280'} />Home
               </button>
             )}
-
             {(role === 'Player' || role === 'Organizer') && (
-              <button
-                className={isActive('/my-matches') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function () { navigate('/my-matches') }}
-              >
-                <IconCalendar size={15} color={isActive('/my-matches') ? '#16A34A' : '#6B7280'} />
-                My Matches
+              <button className={isActive('/my-matches') ? 'nav-link-btn active' : 'nav-link-btn'} onClick={function () { navigate('/my-matches') }}>
+                <IconCalendar size={15} color={isActive('/my-matches') ? '#16A34A' : '#6B7280'} />My Matches
               </button>
             )}
-
             {role === 'Organizer' && (
-              <button
-                className={isActive('/create-match') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function () { navigate('/create-match') }}
-              >
-                <IconPlus size={15} color={isActive('/create-match') ? '#16A34A' : '#6B7280'} />
-                Create Match
+              <button className={isActive('/create-match') ? 'nav-link-btn active' : 'nav-link-btn'} onClick={function () { navigate('/create-match') }}>
+                <IconPlus size={15} color={isActive('/create-match') ? '#16A34A' : '#6B7280'} />Create Match
               </button>
             )}
-
             {role === 'Venue Host' && (
-              <button
-                className={isActive('/my-venues') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function () { navigate('/my-venues') }}
-              >
-                <IconBuilding size={15} color={isActive('/my-venues') ? '#16A34A' : '#6B7280'} />
-                My Venues
+              <button className={isActive('/my-venues') ? 'nav-link-btn active' : 'nav-link-btn'} onClick={function () { navigate('/my-venues') }}>
+                <IconBuilding size={15} color={isActive('/my-venues') ? '#16A34A' : '#6B7280'} />My Venues
               </button>
             )}
-
             {role === 'Venue Host' && (
-              <button
-                className={isActive('/create-venue') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function () { navigate('/create-venue') }}
-              >
-                <IconPlus size={15} color={isActive('/create-venue') ? '#16A34A' : '#6B7280'} />
-                Create Venue
+              <button className={isActive('/create-venue') ? 'nav-link-btn active' : 'nav-link-btn'} onClick={function () { navigate('/create-venue') }}>
+                <IconPlus size={15} color={isActive('/create-venue') ? '#16A34A' : '#6B7280'} />Create Venue
               </button>
             )}
-
             {role === 'Admin' && (
-              <button
-                className={isActive('/admin') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function () { navigate('/admin') }}
-              >
-                Admin Panel
-              </button>
+              <button className={isActive('/admin') ? 'nav-link-btn active' : 'nav-link-btn'} onClick={function () { navigate('/admin') }}>Admin Panel</button>
             )}
-
-            <button
-              className={isActive('/profile') ? 'nav-link-btn active' : 'nav-link-btn'}
-              onClick={function () { navigate('/profile') }}
-            >
-              <IconUser size={15} color={isActive('/profile') ? '#16A34A' : '#6B7280'} />
-              Profile
+            <button className={isActive('/profile') ? 'nav-link-btn active' : 'nav-link-btn'} onClick={function () { navigate('/profile') }}>
+              <IconUser size={15} color={isActive('/profile') ? '#16A34A' : '#6B7280'} />Profile
             </button>
-
           </div>
 
-          {/* Right side */}
           <div className="navbar-right">
-
-            {/* Bell */}
             <div className="navbar-bell" onClick={handleOpenBell}>
               <IconBell size={21} color={role === 'Admin' ? '#9CA3AF' : '#6B7280'} />
-              {unreadCount > 0 && (
-                <span className="navbar-badge">{unreadCount}</span>
-              )}
+              {unreadCount > 0 && <span className="navbar-badge">{unreadCount}</span>}
             </div>
-
-            {/* Role badge */}
             <span className={getRoleBadgeClass(role)}>{role}</span>
-
-            {/* User avatar + dropdown */}
             <div style={{ position: 'relative' }}>
-              <div
-                className="navbar-avatar"
-                onClick={function () {
-                  setShowUserMenu(!showUserMenu)
-                  setShowNotif(false)
-                }}
-              >
+              <div className="navbar-avatar" onClick={function () { setShowUserMenu(!showUserMenu); setShowNotif(false) }}>
                 {avatarLetter}
               </div>
-
               {showUserMenu && (
                 <div className="role-dropdown">
                   <div className="role-dropdown-label">{firstName}</div>
-                  <div style={{
-                    padding: '8px 14px',
-                    fontSize: 12,
-                    color: '#6B7280',
-                    borderBottom: '1px solid #F3F4F6'
-                  }}>
+                  <div style={{ padding: '8px 14px', fontSize: 12, color: '#6B7280', borderBottom: '1px solid #F3F4F6' }}>
                     {currentUser ? currentUser.email : ''}
                   </div>
-                  <button
-                    className="role-option-btn"
-                    onClick={handleLogout}
-                    style={{ color: '#DC2626', fontWeight: 600 }}
-                  >
-                    Logout
-                  </button>
+                  <button className="role-option-btn" onClick={handleLogout} style={{ color: '#DC2626', fontWeight: 600 }}>Logout</button>
                 </div>
               )}
             </div>
-
           </div>
+
+          {/* Hamburger — mobile only */}
+          <button className="navbar-hamburger" onClick={function () { setShowMobileMenu(!showMobileMenu) }}>
+            <span />
+            <span />
+            <span />
+          </button>
+
         </div>
+
+        {/* Mobile menu — logged in */}
+        {showMobileMenu && (
+          <div className="navbar-mobile-menu">
+            {role !== 'Organizer' && role !== 'Venue Host' && role !== 'Admin' && (
+              <button className="navbar-mobile-link" onClick={function () { navigate('/home'); setShowMobileMenu(false) }}>Home</button>
+            )}
+            {(role === 'Player' || role === 'Organizer') && (
+              <button className="navbar-mobile-link" onClick={function () { navigate('/my-matches'); setShowMobileMenu(false) }}>My Matches</button>
+            )}
+            {role === 'Organizer' && (
+              <button className="navbar-mobile-link" onClick={function () { navigate('/create-match'); setShowMobileMenu(false) }}>Create Match</button>
+            )}
+            {role === 'Venue Host' && (
+              <button className="navbar-mobile-link" onClick={function () { navigate('/my-venues'); setShowMobileMenu(false) }}>My Venues</button>
+            )}
+            {role === 'Venue Host' && (
+              <button className="navbar-mobile-link" onClick={function () { navigate('/create-venue'); setShowMobileMenu(false) }}>Create Venue</button>
+            )}
+            {role === 'Admin' && (
+              <button className="navbar-mobile-link" onClick={function () { navigate('/admin'); setShowMobileMenu(false) }}>Admin Panel</button>
+            )}
+            <button className="navbar-mobile-link" onClick={function () { navigate('/profile'); setShowMobileMenu(false) }}>Profile</button>
+            <button className="navbar-mobile-link" style={{ color: '#DC2626' }} onClick={function () { handleLogout(); setShowMobileMenu(false) }}>Logout</button>
+          </div>
+        )}
       </nav>
 
       {/* Notification panel */}
@@ -408,15 +341,11 @@ function Navbar({ role, setRole }) {
           <div className="notif-panel">
             <div className="notif-header">
               <span>Notifications</span>
-              <button className="notif-mark-read" onClick={function () { setShowNotif(false) }}>
-                Close
-              </button>
+              <button className="notif-mark-read" onClick={function () { setShowNotif(false) }}>Close</button>
             </div>
             <div className="notif-list">
               {notifs.length === 0 && (
-                <div style={{ padding: '20px 16px', color: '#6B7280', fontSize: 13 }}>
-                  No notifications yet
-                </div>
+                <div style={{ padding: '20px 16px', color: '#6B7280', fontSize: 13 }}>No notifications yet</div>
               )}
               {notifs.map(function (n) {
                 return (
@@ -424,21 +353,10 @@ function Navbar({ role, setRole }) {
                     <p className="notif-item-title">{getNotifTitle(n.type)}</p>
                     <p className="notif-item-message">{n.message}</p>
                     <p className="notif-item-time">{formatTime(n.createdAt)}</p>
-
                     {n.type === 'join_request' && (
                       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                        <button
-                          onClick={function () { handleAccept(n) }}
-                          style={{ background: '#16A34A', color: 'white', border: 'none', borderRadius: 6, padding: '5px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
-                        >
-                          Accept
-                        </button>
-                        <button
-                          onClick={function () { handleDecline(n) }}
-                          style={{ background: 'white', color: '#DC2626', border: '1px solid #FCA5A5', borderRadius: 6, padding: '5px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
-                        >
-                          Decline
-                        </button>
+                        <button onClick={function () { handleAccept(n) }} style={{ background: '#16A34A', color: 'white', border: 'none', borderRadius: 6, padding: '5px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Accept</button>
+                        <button onClick={function () { handleDecline(n) }} style={{ background: 'white', color: '#DC2626', border: '1px solid #FCA5A5', borderRadius: 6, padding: '5px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Decline</button>
                       </div>
                     )}
                   </div>
@@ -449,15 +367,8 @@ function Navbar({ role, setRole }) {
         </>
       )}
 
-      {/* Close dropdowns when clicking outside */}
       {(showNotif || showUserMenu) && (
-        <div
-          style={{ position: 'fixed', inset: 0, zIndex: 99 }}
-          onClick={function () {
-            setShowNotif(false)
-            setShowUserMenu(false)
-          }}
-        />
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={function () { setShowNotif(false); setShowUserMenu(false) }} />
       )}
     </>
   )
