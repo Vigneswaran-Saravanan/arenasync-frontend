@@ -5,6 +5,8 @@ import './ProfilePage.css'
 import Navbar from '../../components/Navbar/Navbar'
 import Footer from '../../components/Footer/Footer'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 function ProfilePage({ role, setRole }) {
 
     const navigate = useNavigate()
@@ -28,7 +30,7 @@ function ProfilePage({ role, setRole }) {
             try {
                 const token = localStorage.getItem('token')
 
-                const res = await axios.get('http://localhost:5000/api/users/profile', {
+                const res = await axios.get(API_URL + '/api/users/profile', {
                     headers: { Authorization: 'Bearer ' + token }
                 })
                 setProfile(res.data)
@@ -59,7 +61,7 @@ function ProfilePage({ role, setRole }) {
             const token = localStorage.getItem('token')
 
             const res = await axios.put(
-                'http://localhost:5000/api/users/profile',
+                API_URL + '/api/users/profile',
                 {
                     name: editName,
                     city: editCity,
