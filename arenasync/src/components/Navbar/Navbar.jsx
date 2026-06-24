@@ -28,7 +28,6 @@ function Navbar({ role, setRole }) {
   // Get first name only for display
   const firstName = currentUser ? currentUser.name.split(' ')[0] : 'User'
 
-
   function isActive(path) {
     return location.pathname === path
   }
@@ -45,11 +44,11 @@ function Navbar({ role, setRole }) {
   function handleLogout() {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
-    setRole('Player')
-    navigate('/login')
+    setRole(null)
+    navigate('/')
   }
 
-  // Fetch real notifications 
+  // Fetch real notifications
   useEffect(function () {
     async function fetchNotifications() {
       try {
@@ -62,7 +61,6 @@ function Navbar({ role, setRole }) {
         setNotifs(res.data)
 
       } catch (err) {
-
         console.log('Could not load notifications')
       }
     }
@@ -85,7 +83,6 @@ function Navbar({ role, setRole }) {
           headers: { Authorization: 'Bearer ' + token }
         })
 
-        // Update local state 
         setNotifs(notifs.map(function (n) {
           return { ...n, read: true }
         }))
@@ -170,6 +167,79 @@ function Navbar({ role, setRole }) {
     return days + 'd ago'
   }
 
+  // If no role (not logged in), show the public navbar
+  if (!role) {
+    return (
+      <nav className="navbar">
+        <div className="navbar-inner">
+          <div className="navbar-logo" onClick={function () { navigate('/') }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="42" height="50" viewBox="0 0 64 73">
+              <defs>
+                <clipPath id="field-pub">
+                  <circle cx="32" cy="29" r="19" />
+                </clipPath>
+              </defs>
+              <path d="M32 3C17 3 5 15 5 30C5 42 12.5 52 22 60L32 73L42 60C51.5 52 59 42 59 30C59 15 47 3 32 3Z" fill="#16A34A" />
+              <circle cx="32" cy="29" r="20.5" fill="none" stroke="white" strokeWidth="1.7" />
+              <circle cx="32" cy="29" r="19" fill="#16A34A" />
+              <g clipPath="url(#field-pub)" fill="none" stroke="white" strokeWidth="0.9"
+                strokeLinecap="round" strokeLinejoin="round">
+                <rect x="14" y="9" width="36" height="40" />
+                <line x1="14" y1="29" x2="50" y2="29" />
+                <circle cx="32" cy="29" r="7" />
+                <circle cx="32" cy="29" r="0.8" fill="white" stroke="none" />
+                <rect x="19" y="9" width="26" height="9" />
+                <rect x="23" y="9" width="18" height="4" />
+                <rect x="19" y="40" width="26" height="9" />
+                <rect x="23" y="45" width="18" height="4" />
+              </g>
+            </svg>
+            <span className="navbar-logo-text">
+              Arena<span className="navbar-logo-green">Sync</span>
+            </span>
+          </div>
+
+          <div className="navbar-links">
+            <button
+              className={location.pathname === '/' ? 'nav-link-btn active' : 'nav-link-btn'}
+              onClick={function () { navigate('/') }}
+            >
+              Home
+            </button>
+            <button
+              className={location.pathname === '/about' ? 'nav-link-btn active' : 'nav-link-btn'}
+              onClick={function () { navigate('/about') }}
+            >
+              About
+            </button>
+            <button
+              className={location.pathname === '/contact' ? 'nav-link-btn active' : 'nav-link-btn'}
+              onClick={function () { navigate('/contact') }}
+            >
+              Contact
+            </button>
+          </div>
+
+          <div className="navbar-right">
+            <button
+              className="nav-public-login-btn"
+              onClick={function () { navigate('/login') }}
+            >
+              Login
+            </button>
+            <button
+              className="nav-public-register-btn"
+              onClick={function () { navigate('/register') }}
+            >
+              Get Started
+            </button>
+          </div>
+        </div>
+      </nav>
+    )
+  }
+
+  // Logged-in navbar 
   return (
     <>
       <nav className={role === 'Admin' ? 'navbar navbar-admin' : 'navbar'}>
@@ -177,7 +247,7 @@ function Navbar({ role, setRole }) {
 
           {/* Logo */}
           <div className="navbar-logo" onClick={function () {
-            navigate(role === 'Organizer' ? '/my-matches' : role === 'Venue Host' ? '/my-venues' : '/')
+            navigate(role === 'Organizer' ? '/my-matches' : role === 'Venue Host' ? '/my-venues' : '/home')
           }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="42" height="50" viewBox="0 0 64 73">
               <defs>
@@ -208,12 +278,12 @@ function Navbar({ role, setRole }) {
           {/* Navigation links */}
           <div className="navbar-links">
 
-            {role !== 'Organizer' && role !== 'Venue Host' && (
+            {role !== 'Organizer' && role !== 'Venue Host' && role !== 'Admin' && (
               <button
-                className={isActive('/') ? 'nav-link-btn active' : 'nav-link-btn'}
-                onClick={function () { navigate('/') }}
+                className={isActive('/home') ? 'nav-link-btn active' : 'nav-link-btn'}
+                onClick={function () { navigate('/home') }}
               >
-                <IconHome size={15} color={isActive('/') ? '#16A34A' : '#6B7280'} />
+                <IconHome size={15} color={isActive('/home') ? '#16A34A' : '#6B7280'} />
                 Home
               </button>
             )}
@@ -274,6 +344,7 @@ function Navbar({ role, setRole }) {
               <IconUser size={15} color={isActive('/profile') ? '#16A34A' : '#6B7280'} />
               Profile
             </button>
+
           </div>
 
           {/* Right side */}
