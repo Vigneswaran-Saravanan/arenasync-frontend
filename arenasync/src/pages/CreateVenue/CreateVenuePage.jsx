@@ -141,7 +141,7 @@ function CreateVenuePage({ role, setRole }) {
         )}
 
         <div className="venue-form-group">
-          <label className="venue-form-label">Venue Name</label>
+          <label className="venue-form-label">Venue Name <span style={{ color: '#DC2626' }}>*</span></label>
           <input
             type="text"
             className={errors.name ? 'venue-form-input error' : 'venue-form-input'}
@@ -153,7 +153,7 @@ function CreateVenuePage({ role, setRole }) {
         </div>
 
         <div className="venue-form-group">
-          <label className="venue-form-label">Address</label>
+          <label className="venue-form-label">Address <span style={{ color: '#DC2626' }}>*</span></label>
           <input
             type="text"
             className={errors.address ? 'venue-form-input error' : 'venue-form-input'}
@@ -177,7 +177,7 @@ function CreateVenuePage({ role, setRole }) {
           </div>
 
           <div className="venue-form-group">
-            <label className="venue-form-label">Capacity (players)</label>
+            <label className="venue-form-label">Capacity (players) <span style={{ color: '#DC2626' }}>*</span></label>
             <input
               type="number"
               className={errors.capacity ? 'venue-form-input error' : 'venue-form-input'}
@@ -207,6 +207,10 @@ function CreateVenuePage({ role, setRole }) {
             })}
           </div>
         </div>
+
+        <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 8, textAlign: 'right' }}>
+          <span style={{ color: '#DC2626' }}>*</span> Required field
+        </p>
 
         <button
           className="btn-submit-venue"
