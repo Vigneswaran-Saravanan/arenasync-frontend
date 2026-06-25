@@ -29,13 +29,6 @@ function MatchDetailPage({ role, setRole }) {
   const [actionLoading, setActionLoading] = useState(false)
   const [actionMsg, setActionMsg] = useState('')
 
-  // Chat messages
-  const [chatInput, setChatInput] = useState('')
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'Carlos Mendez', text: 'Hey everyone, see you Sunday! Bring water.', time: '9:00 AM', own: false },
-    { id: 2, sender: 'Aiden Park', text: 'Will do! Which entrance?', time: '9:15 AM', own: false },
-  ])
-
   // Show leave confirmation dialog
   const [showLeaveModal, setShowLeaveModal] = useState(false)
 
@@ -133,18 +126,6 @@ function MatchDetailPage({ role, setRole }) {
     ? new Date(match.date).toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' })
     : 'TBD'
 
-  // Send chat message
-  function handleSend() {
-    if (chatInput.trim() === '') return
-    setMessages([...messages, {
-      id: messages.length + 1,
-      sender: 'You',
-      text: chatInput,
-      time: 'Just now',
-      own: true,
-    }])
-    setChatInput('')
-  }
 
   // Skill badge class
   function getSkillClass(level) {
@@ -285,41 +266,6 @@ function MatchDetailPage({ role, setRole }) {
             })}
 
           </div>
-        </div>
-
-        {/* Match Chat */}
-        <div className="chat-card">
-
-          <div className="chat-header">
-            <h3>Match Chat</h3>
-            <span>{confirmedPlayers.length} participants</span>
-          </div>
-
-          <div className="chat-messages">
-            {messages.map(function (msg) {
-              return (
-                <div key={msg.id} className={msg.own ? 'chat-message own' : 'chat-message other'}>
-                  {!msg.own && <span className="chat-sender">{msg.sender}</span>}
-                  <div className={msg.own ? 'chat-bubble own' : 'chat-bubble other'}>
-                    {msg.text}
-                  </div>
-                  <span className="chat-time">{msg.time}</span>
-                </div>
-              )
-            })}
-          </div>
-
-          <div className="chat-input-row">
-            <input
-              type="text"
-              placeholder="Type a message..."
-              value={chatInput}
-              onChange={function (e) { setChatInput(e.target.value) }}
-              onKeyDown={function (e) { if (e.key === 'Enter') handleSend() }}
-            />
-            <button className="btn-send" onClick={handleSend}>Send</button>
-          </div>
-
         </div>
 
       </div>
